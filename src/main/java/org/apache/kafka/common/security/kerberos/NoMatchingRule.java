@@ -21,7 +21,9 @@ package org.apache.kafka.common.security.kerberos;
 import java.io.IOException;
 
 public class NoMatchingRule extends IOException {
-    NoMatchingRule(String msg) {
+    private static final long serialVersionUID = -5853435894892218838L;
+
+	NoMatchingRule(String msg) {
         super(msg);
     }
 }

@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -75,15 +74,15 @@ public class ConfigDef {
     private Set<String> configsWithNoParent;
 
     public ConfigDef() {
-        configKeys = new HashMap();
-        groups = new LinkedList();
+        configKeys = new HashMap<String, ConfigKey>();
+        groups = new LinkedList<String>();
         configsWithNoParent = null;
     }
 
     public ConfigDef(ConfigDef base) {
-        configKeys = new HashMap(base.configKeys);
-        groups = new LinkedList(base.groups);
-        configsWithNoParent = base.configsWithNoParent == null ? null : new HashSet(base.configsWithNoParent);
+        configKeys = new HashMap<String, ConfigKey>(base.configKeys);
+        groups = new LinkedList<String>(base.groups);
+        configsWithNoParent = base.configsWithNoParent == null ? null : new HashSet<String>(base.configsWithNoParent);
     }
 
     /**
@@ -444,7 +443,7 @@ public class ConfigDef {
             throw new ConfigException("Some configurations in are referred in the dependents, but not defined: " + joined);
         }
         // parse all known keys
-        Map<String, Object> values = new HashMap();
+        Map<String, Object> values = new HashMap<String, Object>();
         for (ConfigKey key : configKeys.values()) {
             Object value;
             // props map contains setting - assign ConfigKey value
@@ -473,11 +472,11 @@ public class ConfigDef {
      * the current configuration values.
      */
     public List<ConfigValue> validate(Map<String, String> props) {
-        return new ArrayList(validateAll(props).values());
+        return new ArrayList<ConfigValue>(validateAll(props).values());
     }
 
     public Map<String, ConfigValue> validateAll(Map<String, String> props) {
-        Map<String, ConfigValue> configValues = new HashMap();
+        Map<String, ConfigValue> configValues = new HashMap<String, ConfigValue>();
         for (String name : configKeys.keySet()) {
             configValues.put(name, new ConfigValue(name));
         }
@@ -496,7 +495,7 @@ public class ConfigDef {
 
     // package accessible for testing
     Map<String, Object> parseForValidate(Map<String, String> props, Map<String, ConfigValue> configValues) {
-        Map<String, Object> parsed = new HashMap();
+        Map<String, Object> parsed = new HashMap<String, Object>();
         Set<String> configsWithNoParent = getConfigsWithNoParent();
         for (String name : configsWithNoParent) {
             parseForValidate(name, props, parsed, configValues);
@@ -514,7 +513,7 @@ public class ConfigDef {
     }
 
     private List<String> undefinedDependentConfigs() {
-        Set<String> undefinedConfigKeys = new HashSet();
+        Set<String> undefinedConfigKeys = new HashSet<String>();
         for (String configName : configKeys.keySet()) {
             ConfigKey configKey = configKeys.get(configName);
             List<String> dependents = configKey.dependents;
@@ -524,21 +523,21 @@ public class ConfigDef {
                 }
             }
         }
-        return new ArrayList(undefinedConfigKeys);
+        return new ArrayList<String>(undefinedConfigKeys);
     }
 
     private Set<String> getConfigsWithNoParent() {
         if (this.configsWithNoParent != null) {
             return this.configsWithNoParent;
         }
-        Set<String> configsWithParent = new HashSet();
+        Set<String> configsWithParent = new HashSet<String>();
 
         for (ConfigKey configKey : configKeys.values()) {
             List<String> dependents = configKey.dependents;
             configsWithParent.addAll(dependents);
         }
 
-        Set<String> configs = new HashSet(configKeys.keySet());
+        Set<String> configs = new HashSet<String>(configKeys.keySet());
         configs.removeAll(configsWithParent);
         this.configsWithNoParent = configs;
         return configs;
@@ -590,7 +589,7 @@ public class ConfigDef {
                 recommendedValues = key.recommender.validValues(name, parsed);
                 List<Object> originalRecommendedValues = config.recommendedValues();
                 if (!originalRecommendedValues.isEmpty()) {
-                    Set<Object> originalRecommendedValueSet = new HashSet(originalRecommendedValues);
+                    Set<Object> originalRecommendedValueSet = new HashSet<Object>(originalRecommendedValues);
                     Iterator<Object> it = recommendedValues.iterator();
                     while (it.hasNext()) {
                         Object o = it.next();
@@ -863,7 +862,8 @@ public class ConfigDef {
             return new ValidList(Arrays.asList(validStrings));
         }
 
-        public void ensureValid(final String name, final Object value) {
+        @SuppressWarnings("unchecked")
+		public void ensureValid(final String name, final Object value) {
             List<String> values = (List<String>) value;
             for (String string : values) {
                 validString.ensureValid(name, string);
@@ -1100,13 +1100,13 @@ public class ConfigDef {
      * If grouping is not specified, the result will reflect "natural" order: listing required fields first, then ordering by importance, and finally by name.
      */
     private List<ConfigKey> sortedConfigs() {
-        final Map<String, Integer> groupOrd = new HashMap(groups.size());
+        final Map<String, Integer> groupOrd = new HashMap<String, Integer>(groups.size());
         int ord = 0;
         for (String group : groups) {
             groupOrd.put(group, ord++);
         }
 
-        List<ConfigKey> configs = new ArrayList(configKeys.values());
+        List<ConfigKey> configs = new ArrayList<ConfigKey>(configKeys.values());
         Collections.sort(configs, new Comparator<ConfigKey>() {
             public int compare(ConfigKey k1, ConfigKey k2) {
                 //(x < y) ? -1 : ((x == y) ? 0 : 1)
@@ -1174,7 +1174,7 @@ public class ConfigDef {
      */
     private static List<String> embeddedDependents(final String keyPrefix, final List<String> dependents) {
         if (dependents == null) return null;
-        final List<String> updatedDependents = new ArrayList(dependents.size());
+        final List<String> updatedDependents = new ArrayList<String>(dependents.size());
         for (String dependent : dependents) {
             updatedDependents.add(keyPrefix + dependent);
         }
@@ -1192,7 +1192,7 @@ public class ConfigDef {
             }
 
             private Map<String, Object> unprefixed(Map<String, Object> parsedConfig) {
-                final Map<String, Object> unprefixedParsedConfig = new HashMap(parsedConfig.size());
+                final Map<String, Object> unprefixedParsedConfig = new HashMap<String, Object>(parsedConfig.size());
                 for (Map.Entry<String, Object> e : parsedConfig.entrySet()) {
                     if (e.getKey().startsWith(keyPrefix)) {
                         unprefixedParsedConfig.put(unprefixed(e.getKey()), e.getValue());

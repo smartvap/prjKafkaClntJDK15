@@ -27,7 +27,6 @@ import org.apache.kafka.common.network.*;
 import org.apache.kafka.common.protocol.ApiKeys;
 import org.apache.kafka.common.protocol.Errors;
 import org.apache.kafka.common.protocol.Protocol;
-import org.apache.kafka.common.protocol.types.SchemaException;
 import org.apache.kafka.common.requests.*;
 import org.apache.kafka.common.security.auth.AuthCallbackHandler;
 import org.apache.kafka.common.security.auth.KafkaPrincipal;
@@ -102,13 +101,14 @@ public class SaslServerAuthenticator implements Authenticator {
         this.credentialCache = credentialCache;
     }
 
-    public void configure(TransportLayer transportLayer, PrincipalBuilder principalBuilder, Map<String, ?> configs) {
+    @SuppressWarnings("unchecked")
+	public void configure(TransportLayer transportLayer, PrincipalBuilder principalBuilder, Map<String, ?> configs) {
         this.transportLayer = transportLayer;
         this.configs = configs;
         List<String> enabledMechanisms = (List<String>) this.configs.get(SaslConfigs.SASL_ENABLED_MECHANISMS);
         if (enabledMechanisms == null || enabledMechanisms.isEmpty())
             throw new IllegalArgumentException("No SASL mechanisms are enabled");
-        this.enabledMechanisms = new HashSet(enabledMechanisms);
+        this.enabledMechanisms = new HashSet<String>(enabledMechanisms);
     }
 
     private void createSaslServer(String mechanism) throws IOException {

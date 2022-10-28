@@ -40,8 +40,8 @@ import java.util.concurrent.atomic.AtomicReference;
 public class RequestFuture<T> implements ConsumerNetworkClient.PollCondition {
 
     private static final Object INCOMPLETE_SENTINEL = new Object();
-    private final AtomicReference<Object> result = new AtomicReference(INCOMPLETE_SENTINEL);
-    private final ConcurrentLinkedQueue<RequestFutureListener<T>> listeners = new ConcurrentLinkedQueue();
+    private final AtomicReference<Object> result = new AtomicReference<Object>(INCOMPLETE_SENTINEL);
+    private final ConcurrentLinkedQueue<RequestFutureListener<T>> listeners = new ConcurrentLinkedQueue<RequestFutureListener<T>>();
 
     /**
      * Check whether the response is ready to be handled
@@ -179,7 +179,7 @@ public class RequestFuture<T> implements ConsumerNetworkClient.PollCondition {
      * @return The new future
      */
     public <S> RequestFuture<S> compose(final RequestFutureAdapter<T, S> adapter) {
-        final RequestFuture<S> adapted = new RequestFuture();
+        final RequestFuture<S> adapted = new RequestFuture<S>();
         addListener(new RequestFutureListener<T>() {
             public void onSuccess(T value) {
                 adapter.onSuccess(value, adapted);
@@ -205,13 +205,13 @@ public class RequestFuture<T> implements ConsumerNetworkClient.PollCondition {
     }
 
     public static <T> RequestFuture<T> failure(RuntimeException e) {
-        RequestFuture<T> future = new RequestFuture();
+        RequestFuture<T> future = new RequestFuture<T>();
         future.raise(e);
         return future;
     }
 
     public static RequestFuture<Void> voidSuccess() {
-        RequestFuture<Void> future = new RequestFuture();
+        RequestFuture<Void> future = new RequestFuture<Void>();
         future.complete(null);
         return future;
     }

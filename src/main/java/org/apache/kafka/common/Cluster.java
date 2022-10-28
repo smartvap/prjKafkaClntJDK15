@@ -69,23 +69,23 @@ public final class Cluster {
         this.isBootstrapConfigured = isBootstrapConfigured;
         this.clusterResource = new ClusterResource(clusterId);
         // make a randomized, unmodifiable copy of the nodes
-        List<Node> copy = new ArrayList(nodes);
+        List<Node> copy = new ArrayList<Node>(nodes);
         Collections.shuffle(copy);
         this.nodes = Collections.unmodifiableList(copy);
-        this.nodesById = new HashMap();
+        this.nodesById = new HashMap<Integer, Node>();
         for (Node node : nodes)
             this.nodesById.put(node.id(), node);
 
         // index the partitions by topic/partition for quick lookup
-        this.partitionsByTopicPartition = new HashMap(partitions.size());
+        this.partitionsByTopicPartition = new HashMap<TopicPartition, PartitionInfo>(partitions.size());
         for (PartitionInfo p : partitions)
             this.partitionsByTopicPartition.put(new TopicPartition(p.topic(), p.partition()), p);
 
         // index the partitions by topic and node respectively, and make the lists
         // unmodifiable so we can hand them out in user-facing apis without risk
         // of the client modifying the contents
-        HashMap<String, List<PartitionInfo>> partsForTopic = new HashMap();
-        HashMap<Integer, List<PartitionInfo>> partsForNode = new HashMap();
+        HashMap<String, List<PartitionInfo>> partsForTopic = new HashMap<String, List<PartitionInfo>>();
+        HashMap<Integer, List<PartitionInfo>> partsForNode = new HashMap<Integer, List<PartitionInfo>>();
         for (Node n : this.nodes) {
             partsForNode.put(n.id(), new ArrayList<PartitionInfo>());
         }
@@ -100,20 +100,20 @@ public final class Cluster {
                 psNode.add(p);
             }
         }
-        this.partitionsByTopic = new HashMap(partsForTopic.size());
-        this.availablePartitionsByTopic = new HashMap(partsForTopic.size());
+        this.partitionsByTopic = new HashMap<String, List<PartitionInfo>>(partsForTopic.size());
+        this.availablePartitionsByTopic = new HashMap<String, List<PartitionInfo>>(partsForTopic.size());
         for (Map.Entry<String, List<PartitionInfo>> entry : partsForTopic.entrySet()) {
             String topic = entry.getKey();
             List<PartitionInfo> partitionList = entry.getValue();
             this.partitionsByTopic.put(topic, Collections.unmodifiableList(partitionList));
-            List<PartitionInfo> availablePartitions = new ArrayList();
+            List<PartitionInfo> availablePartitions = new ArrayList<PartitionInfo>();
             for (PartitionInfo part : partitionList) {
                 if (part.leader() != null)
                     availablePartitions.add(part);
             }
             this.availablePartitionsByTopic.put(topic, Collections.unmodifiableList(availablePartitions));
         }
-        this.partitionsByNode = new HashMap(partsForNode.size());
+        this.partitionsByNode = new HashMap<Integer, List<PartitionInfo>>(partsForNode.size());
         for (Map.Entry<Integer, List<PartitionInfo>> entry : partsForNode.entrySet())
             this.partitionsByNode.put(entry.getKey(), Collections.unmodifiableList(entry.getValue()));
 
@@ -135,7 +135,7 @@ public final class Cluster {
      * @return A cluster for these hosts/ports
      */
     public static Cluster bootstrap(List<InetSocketAddress> addresses) {
-        List<Node> nodes = new ArrayList();
+        List<Node> nodes = new ArrayList<Node>();
         int nodeId = -1;
         for (InetSocketAddress address : addresses)
         	// Solve the problem of slow reverse resolving
@@ -148,10 +148,10 @@ public final class Cluster {
      * Return a copy of this cluster combined with `partitions`.
      */
     public Cluster withPartitions(Map<TopicPartition, PartitionInfo> partitions) {
-        Map<TopicPartition, PartitionInfo> combinedPartitions = new HashMap(this.partitionsByTopicPartition);
+        Map<TopicPartition, PartitionInfo> combinedPartitions = new HashMap<TopicPartition, PartitionInfo>(this.partitionsByTopicPartition);
         combinedPartitions.putAll(partitions);
         return new Cluster(clusterResource.clusterId(), this.nodes, combinedPartitions.values(),
-                new HashSet(this.unauthorizedTopics), new HashSet(this.internalTopics));
+                new HashSet<String>(this.unauthorizedTopics), new HashSet<String>(this.internalTopics));
     }
 
     /**

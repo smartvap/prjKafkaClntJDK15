@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
 public class JSONSerializer implements Serializer<JSONObject> {
+	@SuppressWarnings("unused")
 	private String encoding = "UTF8";
 
 	public void configure(Map<String, ?> configs, boolean isKey) {

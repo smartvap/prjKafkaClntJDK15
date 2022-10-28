@@ -129,7 +129,7 @@ public class MemoryRecords extends AbstractRecords {
             Record shallowRecord = shallowEntry.record();
             byte shallowMagic = shallowRecord.magic();
             boolean writeOriginalEntry = true;
-            List<LogEntry> retainedEntries = new ArrayList();
+            List<LogEntry> retainedEntries = new ArrayList<LogEntry>();
 
             for (LogEntry deepEntry : shallowEntry) {
                 Record deepRecord = deepEntry.record();
@@ -373,7 +373,7 @@ public class MemoryRecords extends AbstractRecords {
     }
 
     private static List<LogEntry> buildLogEntries(long initialOffset, List<Record> records) {
-        List<LogEntry> entries = new ArrayList();
+        List<LogEntry> entries = new ArrayList<LogEntry>();
         for (Record record : records)
             entries.add(LogEntry.create(initialOffset++, record));
         return entries;

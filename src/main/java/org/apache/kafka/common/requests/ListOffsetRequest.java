@@ -90,7 +90,7 @@ public class ListOffsetRequest extends AbstractRequest {
                         throw new RuntimeException("Must set partitionTimestamps or offsetData when creating a v0 " +
                             "ListOffsetRequest");
                     } else {
-                        offsetData = new HashMap();
+                        offsetData = new HashMap<TopicPartition, PartitionData>();
                         for (Map.Entry<TopicPartition, Long> entry: partitionTimestamps.entrySet()) {
                             offsetData.put(entry.getKey(),
                                     new PartitionData(entry.getValue(), 1));
@@ -173,7 +173,7 @@ public class ListOffsetRequest extends AbstractRequest {
         for (Map.Entry<String, Map<Integer, Object>> topicEntry: topicsData.entrySet()) {
             Struct topicData = struct.instance(TOPICS_KEY_NAME);
             topicData.set(TOPIC_KEY_NAME, topicEntry.getKey());
-            List<Struct> partitionArray = new ArrayList();
+            List<Struct> partitionArray = new ArrayList<Struct>();
             for (Map.Entry<Integer, Object> partitionEntry : topicEntry.getValue().entrySet()) {
                 if (version == 0) {
                     PartitionData offsetPartitionData = (PartitionData) partitionEntry.getValue();
@@ -202,10 +202,10 @@ public class ListOffsetRequest extends AbstractRequest {
 
     public ListOffsetRequest(Struct struct, short versionId) {
         super(struct, versionId);
-        Set<TopicPartition> duplicatePartitions = new HashSet();
+        Set<TopicPartition> duplicatePartitions = new HashSet<TopicPartition>();
         replicaId = struct.getInt(REPLICA_ID_KEY_NAME);
-        offsetData = new HashMap();
-        partitionTimestamps = new HashMap();
+        offsetData = new HashMap<TopicPartition, PartitionData>();
+        partitionTimestamps = new HashMap<TopicPartition, Long>();
         for (Object topicResponseObj : struct.getArray(TOPICS_KEY_NAME)) {
             Struct topicResponse = (Struct) topicResponseObj;
             String topic = topicResponse.getString(TOPIC_KEY_NAME);

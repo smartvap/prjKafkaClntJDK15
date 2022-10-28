@@ -14,7 +14,9 @@ package org.apache.kafka.common.errors;
 
 public class AuthorizationException extends ApiException {
 
-    public AuthorizationException(String message) {
+    private static final long serialVersionUID = -8022639404396770552L;
+
+	public AuthorizationException(String message) {
         super(message);
     }
 

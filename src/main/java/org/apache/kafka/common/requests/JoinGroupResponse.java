@@ -84,7 +84,7 @@ public class JoinGroupResponse extends AbstractResponse {
         struct.set(MEMBER_ID_KEY_NAME, memberId);
         struct.set(LEADER_ID_KEY_NAME, leaderId);
 
-        List<Struct> memberArray = new ArrayList();
+        List<Struct> memberArray = new ArrayList<Struct>();
         for (Map.Entry<String, ByteBuffer> entries: groupMembers.entrySet()) {
             Struct memberData = struct.instance(MEMBERS_KEY_NAME);
             memberData.set(MEMBER_ID_KEY_NAME, entries.getKey());
@@ -103,7 +103,7 @@ public class JoinGroupResponse extends AbstractResponse {
 
     public JoinGroupResponse(Struct struct) {
         super(struct);
-        members = new HashMap();
+        members = new HashMap<String, ByteBuffer>();
 
         for (Object memberDataObj : struct.getArray(MEMBERS_KEY_NAME)) {
             Struct memberData = (Struct) memberDataObj;

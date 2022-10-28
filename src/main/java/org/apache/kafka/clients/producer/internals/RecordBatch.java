@@ -40,7 +40,7 @@ public final class RecordBatch {
     final TopicPartition topicPartition;
     final ProduceRequestResult produceFuture;
 
-    private final List<Thunk> thunks = new ArrayList();
+    private final List<Thunk> thunks = new ArrayList<Thunk>();
     private final MemoryRecordsBuilder recordsBuilder;
 
     volatile int attempts;

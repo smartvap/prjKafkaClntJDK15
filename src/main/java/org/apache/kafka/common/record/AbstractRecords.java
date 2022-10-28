@@ -50,7 +50,7 @@ public abstract class AbstractRecords implements Records {
      * Convert this message set to use the specified message format.
      */
     public Records toMessageFormat(byte toMagic) {
-        List<LogEntry> converted = new ArrayList();
+        List<LogEntry> converted = new ArrayList<LogEntry>();
         for (LogEntry entry : deepEntries())
             converted.add(LogEntry.create(entry.offset(), entry.record().convert(toMagic)));
 

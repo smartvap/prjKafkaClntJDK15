@@ -3,7 +3,8 @@ package org.apache.kafka.common.utils;
 import java.lang.reflect.Array;
 
 public class ArraysUtil {
-    public static <T> T[] copyOf(T[] original, int newLength) {
+    @SuppressWarnings("unchecked")
+	public static <T> T[] copyOf(T[] original, int newLength) {
         return (T[]) copyOf(original, newLength, original.getClass());
     }
 

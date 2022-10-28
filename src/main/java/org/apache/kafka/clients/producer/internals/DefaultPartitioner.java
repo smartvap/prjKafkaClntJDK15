@@ -37,7 +37,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class DefaultPartitioner implements Partitioner {
 
-    private final ConcurrentMap<String, AtomicInteger> topicCounterMap = new ConcurrentHashMap();
+    private final ConcurrentMap<String, AtomicInteger> topicCounterMap = new ConcurrentHashMap<String, AtomicInteger>();
 
     public void configure(Map<String, ?> configs) {}
 

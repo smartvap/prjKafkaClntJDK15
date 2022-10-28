@@ -193,7 +193,7 @@ private final Logger log = LoggerFactory.getLogger(getClass());
 
     public AbstractConfig(Map<String, Object> parsedConfig) {
         this.values = parsedConfig;
-        this.originals = new HashMap();
+        this.originals = new HashMap<String, Object>();
         this.used = Collections.synchronizedSet(new HashSet<String>());
     }
 
@@ -246,13 +246,13 @@ private final Logger log = LoggerFactory.getLogger(getClass());
     }
 
     public Set<String> unused() {
-        Set<String> keys = new HashSet(originals.keySet());
+        Set<String> keys = new HashSet<String>(originals.keySet());
         keys.removeAll(used);
         return keys;
     }
 
     public Map<String, Object> originals() {
-        Map<String, Object> copy = new RecordingMap();
+        Map<String, Object> copy = new RecordingMap<Object>();
         copy.putAll(originals);
         return copy;
     }
@@ -263,7 +263,7 @@ private final Logger log = LoggerFactory.getLogger(getClass());
      * @throws ClassCastException if any of the values are not strings
      */
     public Map<String, String> originalsStrings() {
-        Map<String, String> copy = new RecordingMap();
+        Map<String, String> copy = new RecordingMap<String>();
         for (Map.Entry<String, ?> entry : originals.entrySet()) {
             if (!(entry.getValue() instanceof String))
                 throw new ClassCastException("Non-string value found in original settings for key " + entry.getKey() +
@@ -280,7 +280,7 @@ private final Logger log = LoggerFactory.getLogger(getClass());
      * @return a Map containing the settings with the prefix
      */
     public Map<String, Object> originalsWithPrefix(String prefix) {
-        Map<String, Object> result = new RecordingMap(prefix);
+        Map<String, Object> result = new RecordingMap<Object>(prefix);
         for (Map.Entry<String, ?> entry : originals.entrySet()) {
             if (entry.getKey().startsWith(prefix) && entry.getKey().length() > prefix.length())
                 result.put(entry.getKey().substring(prefix.length()), entry.getValue());
@@ -289,15 +289,16 @@ private final Logger log = LoggerFactory.getLogger(getClass());
     }
 
     public Map<String, ?> values() {
-        return new RecordingMap(values);
+        return new RecordingMap<Object>(values);
     }
 
-    private void logAll() {
+    @SuppressWarnings("rawtypes")
+	private void logAll() {
         StringBuilder b = new StringBuilder();
         b.append(getClass().getSimpleName());
         b.append(" values: ");
         b.append(Utils.NL);
-        Object[] objects = new TreeMap(this.values).entrySet().toArray();
+        Object[] objects = new TreeMap<Object, Object>(this.values).entrySet().toArray();
         for (int i = 0; i < objects.length; i++) {
             Map.Entry entry = (Map.Entry) objects[i];
             b.append('\t');
@@ -345,8 +346,9 @@ private final Logger log = LoggerFactory.getLogger(getClass());
      * @param t The interface the class should implement
      * @return The list of configured instances
      */
-    public <T> List<T> getConfiguredInstances(String key, Class<T> t) {
-        return getConfiguredInstances(key, t, Collections.EMPTY_MAP);
+    @SuppressWarnings("unchecked")
+	public <T> List<T> getConfiguredInstances(String key, Class<T> t) {
+        return getConfiguredInstances(key, t, (Map<String, Object>) Collections.EMPTY_MAP);
     }
 
     /**
@@ -407,7 +409,8 @@ private final Logger log = LoggerFactory.getLogger(getClass());
      */
     private class RecordingMap<V> extends HashMap<String, V> {
 
-        private final String prefix;
+        private static final long serialVersionUID = -8760688661409648355L;
+		private final String prefix;
 
         RecordingMap() {
             this("");

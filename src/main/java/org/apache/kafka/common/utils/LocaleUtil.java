@@ -9,7 +9,7 @@ import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.PropertyPermission;
 import java.util.Set;
-
+@SuppressWarnings("unused")
 public class LocaleUtil implements Cloneable, Serializable {
     static private final LocaleUtil.Cache LOCALECACHE = new LocaleUtil.Cache();
 
@@ -133,7 +133,7 @@ public class LocaleUtil implements Cloneable, Serializable {
      * Display types for retrieving localized names from the name providers.
      */
     private static final int DISPLAY_LANGUAGE = 0;
-    private static final int DISPLAY_COUNTRY  = 1;
+	private static final int DISPLAY_COUNTRY  = 1;
     private static final int DISPLAY_VARIANT  = 2;
     private static final int DISPLAY_SCRIPT   = 3;
 

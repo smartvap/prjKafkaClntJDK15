@@ -120,7 +120,7 @@ public class FetchResponse extends AbstractResponse {
 
     public FetchResponse(Struct struct) {
         super(struct);
-        LinkedHashMap<TopicPartition, PartitionData> responseData = new LinkedHashMap();
+        LinkedHashMap<TopicPartition, PartitionData> responseData = new LinkedHashMap<TopicPartition, PartitionData>();
         for (Object topicResponseObj : struct.getArray(RESPONSES_KEY_NAME)) {
             Struct topicResponse = (Struct) topicResponseObj;
             String topic = topicResponse.getString(TOPIC_KEY_NAME);
@@ -149,7 +149,7 @@ public class FetchResponse extends AbstractResponse {
         responseHeader.writeTo(buffer);
         buffer.rewind();
 
-        List<Send> sends = new ArrayList();
+        List<Send> sends = new ArrayList<Send>();
         sends.add(new ByteBufferSend(dest, buffer));
         addResponseData(dest, sends);
         return new MultiSend(dest, sends);
@@ -227,11 +227,11 @@ public class FetchResponse extends AbstractResponse {
                                       LinkedHashMap<TopicPartition, PartitionData> responseData,
                                       int throttleTime) {
         List<FetchRequest.TopicAndPartitionData<PartitionData>> topicsData = FetchRequest.TopicAndPartitionData.batchByTopic(responseData);
-        List<Struct> topicArray = new ArrayList();
+        List<Struct> topicArray = new ArrayList<Struct>();
         for (FetchRequest.TopicAndPartitionData<PartitionData> topicEntry: topicsData) {
             Struct topicData = struct.instance(RESPONSES_KEY_NAME);
             topicData.set(TOPIC_KEY_NAME, topicEntry.topic);
-            List<Struct> partitionArray = new ArrayList();
+            List<Struct> partitionArray = new ArrayList<Struct>();
             for (Map.Entry<Integer, PartitionData> partitionEntry : topicEntry.partitions.entrySet()) {
                 PartitionData fetchPartitionData = partitionEntry.getValue();
                 Struct partitionData = topicData.instance(PARTITIONS_KEY_NAME);

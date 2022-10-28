@@ -336,8 +336,8 @@ public class Sender implements Runnable {
      * Create a produce request from the given record batches
      */
     private void sendProduceRequest(long now, int destination, short acks, int timeout, List<RecordBatch> batches) {
-        Map<TopicPartition, MemoryRecords> produceRecordsByPartition = new HashMap(batches.size());
-        final Map<TopicPartition, RecordBatch> recordsByPartition = new HashMap(batches.size());
+        Map<TopicPartition, MemoryRecords> produceRecordsByPartition = new HashMap<TopicPartition, MemoryRecords>(batches.size());
+        final Map<TopicPartition, RecordBatch> recordsByPartition = new HashMap<TopicPartition, RecordBatch>(batches.size());
         for (RecordBatch batch : batches) {
             TopicPartition tp = batch.topicPartition;
             produceRecordsByPartition.put(tp, batch.records());

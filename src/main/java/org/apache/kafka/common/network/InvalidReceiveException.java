@@ -20,7 +20,9 @@ import org.apache.kafka.common.KafkaException;
 
 public class InvalidReceiveException extends KafkaException {
 
-    public InvalidReceiveException(String message) {
+    private static final long serialVersionUID = 2256559122940009692L;
+
+	public InvalidReceiveException(String message) {
         super(message);
     }
 

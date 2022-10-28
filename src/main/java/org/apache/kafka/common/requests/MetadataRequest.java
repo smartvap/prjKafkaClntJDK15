@@ -102,7 +102,7 @@ public class MetadataRequest extends AbstractRequest {
         super(struct, version);
         Object[] topicArray = struct.getArray(TOPICS_KEY_NAME);
         if (topicArray != null) {
-            topics = new ArrayList();
+            topics = new ArrayList<String>();
             for (Object topicObj: topicArray) {
                 topics.add((String) topicObj);
             }
@@ -113,7 +113,7 @@ public class MetadataRequest extends AbstractRequest {
 
     @Override
     public AbstractResponse getErrorResponse(Throwable e) {
-        List<MetadataResponse.TopicMetadata> topicMetadatas = new ArrayList();
+        List<MetadataResponse.TopicMetadata> topicMetadatas = new ArrayList<MetadataResponse.TopicMetadata>();
         Errors error = Errors.forException(e);
         List<MetadataResponse.PartitionMetadata> partitions = Collections.emptyList();
 

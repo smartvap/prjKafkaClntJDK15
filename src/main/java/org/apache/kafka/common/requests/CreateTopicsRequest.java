@@ -140,7 +140,7 @@ public class CreateTopicsRequest extends AbstractRequest {
     private CreateTopicsRequest(Map<String, TopicDetails> topics, Integer timeout, boolean validateOnly, short version) {
         super(new Struct(ProtoUtils.requestSchema(ApiKeys.CREATE_TOPICS.id, version)), version);
 
-        List<Struct> createTopicRequestStructs = new ArrayList(topics.size());
+        List<Struct> createTopicRequestStructs = new ArrayList<Struct>(topics.size());
         for (Map.Entry<String, TopicDetails> entry : topics.entrySet()) {
 
             Struct singleRequestStruct = struct.instance(REQUESTS_KEY_NAME);
@@ -152,7 +152,7 @@ public class CreateTopicsRequest extends AbstractRequest {
             singleRequestStruct.set(REPLICATION_FACTOR_KEY_NAME, args.replicationFactor);
 
             // replica assignment
-            List<Struct> replicaAssignmentsStructs = new ArrayList(args.replicasAssignments.size());
+            List<Struct> replicaAssignmentsStructs = new ArrayList<Struct>(args.replicasAssignments.size());
             for (Map.Entry<Integer, List<Integer>> partitionReplicaAssignment : args.replicasAssignments.entrySet()) {
                 Struct replicaAssignmentStruct = singleRequestStruct.instance(REPLICA_ASSIGNMENT_KEY_NAME);
                 replicaAssignmentStruct.set(REPLICA_ASSIGNMENT_PARTITION_ID_KEY_NAME, partitionReplicaAssignment.getKey());
@@ -162,7 +162,7 @@ public class CreateTopicsRequest extends AbstractRequest {
             singleRequestStruct.set(REPLICA_ASSIGNMENT_KEY_NAME, replicaAssignmentsStructs.toArray());
 
             // configs
-            List<Struct> configsStructs = new ArrayList(args.configs.size());
+            List<Struct> configsStructs = new ArrayList<Struct>(args.configs.size());
             for (Map.Entry<String, String> configEntry : args.configs.entrySet()) {
                 Struct configStruct = singleRequestStruct.instance(CONFIGS_KEY_NAME);
                 configStruct.set(CONFIG_KEY_KEY_NAME, configEntry.getKey());
@@ -187,8 +187,8 @@ public class CreateTopicsRequest extends AbstractRequest {
         super(struct, versionId);
 
         Object[] requestStructs = struct.getArray(REQUESTS_KEY_NAME);
-        Map<String, TopicDetails> topics = new HashMap();
-        Set<String> duplicateTopics = new HashSet();
+        Map<String, TopicDetails> topics = new HashMap<String, TopicDetails>();
+        Set<String> duplicateTopics = new HashSet<String>();
 
         for (Object requestStructObj : requestStructs) {
             Struct singleRequestStruct = (Struct) requestStructObj;
@@ -202,14 +202,14 @@ public class CreateTopicsRequest extends AbstractRequest {
 
             //replica assignment
             Object[] assignmentsArray = singleRequestStruct.getArray(REPLICA_ASSIGNMENT_KEY_NAME);
-            Map<Integer, List<Integer>> partitionReplicaAssignments = new HashMap(assignmentsArray.length);
+            Map<Integer, List<Integer>> partitionReplicaAssignments = new HashMap<Integer, List<Integer>>(assignmentsArray.length);
             for (Object assignmentStructObj : assignmentsArray) {
                 Struct assignmentStruct = (Struct) assignmentStructObj;
 
                 Integer partitionId = assignmentStruct.getInt(REPLICA_ASSIGNMENT_PARTITION_ID_KEY_NAME);
 
                 Object[] replicasArray = assignmentStruct.getArray(REPLICA_ASSIGNMENT_REPLICAS_KEY_NAME);
-                List<Integer> replicas = new ArrayList(replicasArray.length);
+                List<Integer> replicas = new ArrayList<Integer>(replicasArray.length);
                 for (Object replica : replicasArray) {
                     replicas.add((Integer) replica);
                 }
@@ -218,7 +218,7 @@ public class CreateTopicsRequest extends AbstractRequest {
             }
 
             Object[] configArray = singleRequestStruct.getArray(CONFIGS_KEY_NAME);
-            Map<String, String> configs = new HashMap(configArray.length);
+            Map<String, String> configs = new HashMap<String, String>(configArray.length);
             for (Object configStructObj : configArray) {
                 Struct configStruct = (Struct) configStructObj;
 
@@ -244,7 +244,7 @@ public class CreateTopicsRequest extends AbstractRequest {
 
     @Override
     public AbstractResponse getErrorResponse(Throwable e) {
-        Map<String, CreateTopicsResponse.Error> topicErrors = new HashMap();
+        Map<String, CreateTopicsResponse.Error> topicErrors = new HashMap<String, CreateTopicsResponse.Error>();
         for (String topic : topics.keySet()) {
             Errors error = Errors.forException(e);
             // Avoid populating the error message if it's a generic one

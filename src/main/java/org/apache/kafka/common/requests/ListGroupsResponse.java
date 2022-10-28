@@ -45,7 +45,7 @@ public class ListGroupsResponse extends AbstractResponse {
     public ListGroupsResponse(short errorCode, List<Group> groups) {
         super(new Struct(CURRENT_SCHEMA));
         struct.set(ERROR_CODE_KEY_NAME, errorCode);
-        List<Struct> groupList = new ArrayList();
+        List<Struct> groupList = new ArrayList<Struct>();
         for (Group group : groups) {
             Struct groupStruct = struct.instance(GROUPS_KEY_NAME);
             groupStruct.set(GROUP_ID_KEY_NAME, group.groupId);
@@ -60,7 +60,7 @@ public class ListGroupsResponse extends AbstractResponse {
     public ListGroupsResponse(Struct struct) {
         super(struct);
         this.errorCode = struct.getShort(ERROR_CODE_KEY_NAME);
-        this.groups = new ArrayList();
+        this.groups = new ArrayList<Group>();
         for (Object groupObj : struct.getArray(GROUPS_KEY_NAME)) {
             Struct groupStruct = (Struct) groupObj;
             String groupId = groupStruct.getString(GROUP_ID_KEY_NAME);

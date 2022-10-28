@@ -22,6 +22,7 @@ import org.apache.kafka.common.metrics.stats.Avg;
 import org.apache.kafka.common.metrics.stats.Count;
 import org.apache.kafka.common.metrics.stats.Max;
 import org.apache.kafka.common.metrics.stats.Rate;
+import org.apache.kafka.common.utils.Deque;
 import org.apache.kafka.common.utils.Time;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,15 +116,15 @@ public class Selector implements Selectable {
         this.time = time;
         this.metricGrpPrefix = metricGrpPrefix;
         this.metricTags = metricTags;
-        this.channels = new HashMap();
-        this.completedSends = new ArrayList();
-        this.completedReceives = new ArrayList();
-        this.stagedReceives = new HashMap();
-        this.immediatelyConnectedKeys = new HashSet();
-        this.closingChannels = new HashMap();
-        this.connected = new ArrayList();
-        this.disconnected = new ArrayList();
-        this.failedSends = new ArrayList();
+        this.channels = new HashMap<String, KafkaChannel>();
+        this.completedSends = new ArrayList<Send>();
+        this.completedReceives = new ArrayList<NetworkReceive>();
+        this.stagedReceives = new HashMap<KafkaChannel, Deque<NetworkReceive>>();
+        this.immediatelyConnectedKeys = new HashSet<SelectionKey>();
+        this.closingChannels = new HashMap<String, KafkaChannel>();
+        this.connected = new ArrayList<String>();
+        this.disconnected = new ArrayList<String>();
+        this.failedSends = new ArrayList<String>();
         this.sensors = new SelectorMetrics(metrics);
         this.channelBuilder = channelBuilder;
         this.metricsPerConnection = metricsPerConnection;
@@ -206,7 +207,7 @@ public class Selector implements Selectable {
      * Close this selector and all associated connections
      */
     public void close() {
-        List<String> connections = new ArrayList(channels.keySet());
+        List<String> connections = new ArrayList<String>(channels.keySet());
         for (String id : connections)
             close(id);
         try {
@@ -543,7 +544,7 @@ public class Selector implements Selectable {
      * Return the selector channels.
      */
     public List<KafkaChannel> channels() {
-        return new ArrayList(channels.values());
+        return new ArrayList<KafkaChannel>(channels.values());
     }
 
     /**
@@ -635,8 +636,8 @@ public class Selector implements Selectable {
         public final Sensor ioTime;
 
         /* Names of metrics that are not registered through sensors */
-        private final List<MetricName> topLevelMetricNames = new ArrayList();
-        private final List<Sensor> sensors = new ArrayList();
+        private final List<MetricName> topLevelMetricNames = new ArrayList<MetricName>();
+        private final List<Sensor> sensors = new ArrayList<Sensor>();
 
         public SelectorMetrics(Metrics metrics) {
             this.metrics = metrics;
@@ -715,7 +716,7 @@ public class Selector implements Selectable {
                 if (nodeRequest == null) {
                     String metricGrpName = metricGrpPrefix + "-node-metrics";
 
-                    Map<String, String> tags = new LinkedHashMap(metricTags);
+                    Map<String, String> tags = new LinkedHashMap<String, String>(metricTags);
                     tags.put("node-id", "node-" + connectionId);
 
                     nodeRequest = sensor(nodeRequestName);
@@ -784,7 +785,7 @@ public class Selector implements Selectable {
         public IdleExpiryManager(Time time, long connectionsMaxIdleMs) {
             this.connectionsMaxIdleNanos = connectionsMaxIdleMs * 1000 * 1000;
             // initial capacity and load factor are default, we set them explicitly because we want to set accessOrder = true
-            this.lruConnections = new LinkedHashMap(16, .75F, true);
+            this.lruConnections = new LinkedHashMap<String, Long>(16, .75F, true);
             this.nextIdleCloseCheckTime = time.nanoseconds() + this.connectionsMaxIdleNanos;
         }
 

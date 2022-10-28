@@ -94,7 +94,7 @@ public class LeaderAndIsrRequest extends AbstractRequest {
         struct.set(CONTROLLER_ID_KEY_NAME, controllerId);
         struct.set(CONTROLLER_EPOCH_KEY_NAME, controllerEpoch);
 
-        List<Struct> partitionStatesData = new ArrayList(partitionStates.size());
+        List<Struct> partitionStatesData = new ArrayList<Struct>(partitionStates.size());
         for (Map.Entry<TopicPartition, PartitionState> entry : partitionStates.entrySet()) {
             Struct partitionStateData = struct.instance(PARTITION_STATES_KEY_NAME);
             TopicPartition topicPartition = entry.getKey();
@@ -111,7 +111,7 @@ public class LeaderAndIsrRequest extends AbstractRequest {
         }
         struct.set(PARTITION_STATES_KEY_NAME, partitionStatesData.toArray());
 
-        List<Struct> leadersData = new ArrayList(liveLeaders.size());
+        List<Struct> leadersData = new ArrayList<Struct>(liveLeaders.size());
         for (Node leader : liveLeaders) {
             Struct leaderData = struct.instance(LIVE_LEADERS_KEY_NAME);
             leaderData.set(END_POINT_ID_KEY_NAME, leader.id());
@@ -130,7 +130,7 @@ public class LeaderAndIsrRequest extends AbstractRequest {
     public LeaderAndIsrRequest(Struct struct, short versionId) {
         super(struct, versionId);
 
-        Map<TopicPartition, PartitionState> partitionStates = new HashMap();
+        Map<TopicPartition, PartitionState> partitionStates = new HashMap<TopicPartition, PartitionState>();
         for (Object partitionStateDataObj : struct.getArray(PARTITION_STATES_KEY_NAME)) {
             Struct partitionStateData = (Struct) partitionStateDataObj;
             String topic = partitionStateData.getString(TOPIC_KEY_NAME);
@@ -140,14 +140,14 @@ public class LeaderAndIsrRequest extends AbstractRequest {
             int leaderEpoch = partitionStateData.getInt(LEADER_EPOCH_KEY_NAME);
 
             Object[] isrArray = partitionStateData.getArray(ISR_KEY_NAME);
-            List<Integer> isr = new ArrayList(isrArray.length);
+            List<Integer> isr = new ArrayList<Integer>(isrArray.length);
             for (Object r : isrArray)
                 isr.add((Integer) r);
 
             int zkVersion = partitionStateData.getInt(ZK_VERSION_KEY_NAME);
 
             Object[] replicasArray = partitionStateData.getArray(REPLICAS_KEY_NAME);
-            Set<Integer> replicas = new HashSet(replicasArray.length);
+            Set<Integer> replicas = new HashSet<Integer>(replicasArray.length);
             for (Object r : replicasArray)
                 replicas.add((Integer) r);
 
@@ -156,7 +156,7 @@ public class LeaderAndIsrRequest extends AbstractRequest {
 
         }
 
-        Set<Node> leaders = new HashSet();
+        Set<Node> leaders = new HashSet<Node>();
         for (Object leadersDataObj : struct.getArray(LIVE_LEADERS_KEY_NAME)) {
             Struct leadersData = (Struct) leadersDataObj;
             int id = leadersData.getInt(END_POINT_ID_KEY_NAME);
@@ -173,7 +173,7 @@ public class LeaderAndIsrRequest extends AbstractRequest {
 
     @Override
     public AbstractResponse getErrorResponse(Throwable e) {
-        Map<TopicPartition, Short> responses = new HashMap(partitionStates.size());
+        Map<TopicPartition, Short> responses = new HashMap<TopicPartition, Short>(partitionStates.size());
         for (TopicPartition partition : partitionStates.keySet()) {
             responses.put(partition, Errors.forException(e).code());
         }

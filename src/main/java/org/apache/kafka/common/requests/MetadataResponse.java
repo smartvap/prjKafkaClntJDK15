@@ -93,7 +93,7 @@ public class MetadataResponse extends AbstractResponse {
         this.topicMetadata = topicMetadata;
         this.clusterId = clusterId;
 
-        List<Struct> brokerArray = new ArrayList();
+        List<Struct> brokerArray = new ArrayList<Struct>();
         for (Node node : brokers) {
             Struct broker = struct.instance(BROKERS_KEY_NAME);
             broker.set(NODE_ID_KEY_NAME, node.id());
@@ -114,7 +114,7 @@ public class MetadataResponse extends AbstractResponse {
         if (struct.hasField(CLUSTER_ID_KEY_NAME))
             struct.set(CLUSTER_ID_KEY_NAME, clusterId);
 
-        List<Struct> topicMetadataArray = new ArrayList(topicMetadata.size());
+        List<Struct> topicMetadataArray = new ArrayList<Struct>(topicMetadata.size());
         for (TopicMetadata metadata : topicMetadata) {
             Struct topicData = struct.instance(TOPIC_METADATA_KEY_NAME);
             topicData.set(TOPIC_KEY_NAME, metadata.topic);
@@ -123,17 +123,17 @@ public class MetadataResponse extends AbstractResponse {
             if (topicData.hasField(IS_INTERNAL_KEY_NAME))
                 topicData.set(IS_INTERNAL_KEY_NAME, metadata.isInternal());
 
-            List<Struct> partitionMetadataArray = new ArrayList(metadata.partitionMetadata.size());
+            List<Struct> partitionMetadataArray = new ArrayList<Struct>(metadata.partitionMetadata.size());
             for (PartitionMetadata partitionMetadata : metadata.partitionMetadata()) {
                 Struct partitionData = topicData.instance(PARTITION_METADATA_KEY_NAME);
                 partitionData.set(PARTITION_ERROR_CODE_KEY_NAME, partitionMetadata.error.code());
                 partitionData.set(PARTITION_KEY_NAME, partitionMetadata.partition);
                 partitionData.set(LEADER_KEY_NAME, partitionMetadata.leader.id());
-                ArrayList<Integer> replicas = new ArrayList(partitionMetadata.replicas.size());
+                ArrayList<Integer> replicas = new ArrayList<Integer>(partitionMetadata.replicas.size());
                 for (Node node : partitionMetadata.replicas)
                     replicas.add(node.id());
                 partitionData.set(REPLICAS_KEY_NAME, replicas.toArray());
-                ArrayList<Integer> isr = new ArrayList(partitionMetadata.isr.size());
+                ArrayList<Integer> isr = new ArrayList<Integer>(partitionMetadata.isr.size());
                 for (Node node : partitionMetadata.isr)
                     isr.add(node.id());
                 partitionData.set(ISR_KEY_NAME, isr.toArray());
@@ -149,7 +149,7 @@ public class MetadataResponse extends AbstractResponse {
     public MetadataResponse(Struct struct) {
         super(struct);
 
-        Map<Integer, Node> brokers = new HashMap();
+        Map<Integer, Node> brokers = new HashMap<Integer, Node>();
         Object[] brokerStructs = (Object[]) struct.get(BROKERS_KEY_NAME);
         for (int i = 0; i < brokerStructs.length; i++) {
             Struct broker = (Struct) brokerStructs[i];
@@ -175,7 +175,7 @@ public class MetadataResponse extends AbstractResponse {
             this.clusterId = null;
         }
 
-        List<TopicMetadata> topicMetadata = new ArrayList();
+        List<TopicMetadata> topicMetadata = new ArrayList<TopicMetadata>();
         Object[] topicInfos = (Object[]) struct.get(TOPIC_METADATA_KEY_NAME);
         for (int i = 0; i < topicInfos.length; i++) {
             Struct topicInfo = (Struct) topicInfos[i];
@@ -185,7 +185,7 @@ public class MetadataResponse extends AbstractResponse {
             // When we can't know if a topic is internal or not in a v0 response we default to false
             boolean isInternal = topicInfo.hasField(IS_INTERNAL_KEY_NAME) ? topicInfo.getBoolean(IS_INTERNAL_KEY_NAME) : false;
 
-            List<PartitionMetadata> partitionMetadata = new ArrayList();
+            List<PartitionMetadata> partitionMetadata = new ArrayList<PartitionMetadata>();
 
             Object[] partitionInfos = (Object[]) topicInfo.get(PARTITION_METADATA_KEY_NAME);
             for (int j = 0; j < partitionInfos.length; j++) {
@@ -196,7 +196,7 @@ public class MetadataResponse extends AbstractResponse {
                 Node leaderNode = leader == -1 ? null : brokers.get(leader);
                 Object[] replicas = (Object[]) partitionInfo.get(REPLICAS_KEY_NAME);
 
-                List<Node> replicaNodes = new ArrayList(replicas.length);
+                List<Node> replicaNodes = new ArrayList<Node>(replicas.length);
                 for (Object replicaNodeId : replicas)
                     if (brokers.containsKey(replicaNodeId))
                         replicaNodes.add(brokers.get(replicaNodeId));
@@ -204,7 +204,7 @@ public class MetadataResponse extends AbstractResponse {
                         replicaNodes.add(new Node((Integer) replicaNodeId, "", -1));
 
                 Object[] isr = (Object[]) partitionInfo.get(ISR_KEY_NAME);
-                List<Node> isrNodes = new ArrayList(isr.length);
+                List<Node> isrNodes = new ArrayList<Node>(isr.length);
                 for (Object isrNode : isr)
                     if (brokers.containsKey(isrNode))
                         isrNodes.add(brokers.get(isrNode));
@@ -235,7 +235,7 @@ public class MetadataResponse extends AbstractResponse {
      * @return the map
      */
     public Map<String, Errors> errors() {
-        Map<String, Errors> errors = new HashMap();
+        Map<String, Errors> errors = new HashMap<String, Errors>();
         for (TopicMetadata metadata : topicMetadata) {
             if (metadata.error != Errors.NONE)
                 errors.put(metadata.topic(), metadata.error);
@@ -247,7 +247,7 @@ public class MetadataResponse extends AbstractResponse {
      * Returns the set of topics with the specified error
      */
     public Set<String> topicsByError(Errors error) {
-        Set<String> errorTopics = new HashSet();
+        Set<String> errorTopics = new HashSet<String>();
         for (TopicMetadata metadata : topicMetadata) {
             if (metadata.error == error)
                 errorTopics.add(metadata.topic());
@@ -260,8 +260,8 @@ public class MetadataResponse extends AbstractResponse {
      * @return the cluster snapshot
      */
     public Cluster cluster() {
-        Set<String> internalTopics = new HashSet();
-        List<PartitionInfo> partitions = new ArrayList();
+        Set<String> internalTopics = new HashSet<String>();
+        List<PartitionInfo> partitions = new ArrayList<PartitionInfo>();
         for (TopicMetadata metadata : topicMetadata) {
             if (metadata.error == Errors.NONE) {
                 if (metadata.isInternal)

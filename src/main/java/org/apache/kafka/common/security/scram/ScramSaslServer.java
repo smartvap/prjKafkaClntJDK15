@@ -18,6 +18,19 @@
 
 package org.apache.kafka.common.security.scram;
 
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
+
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.CallbackHandler;
+import javax.security.auth.callback.NameCallback;
+import javax.security.sasl.SaslException;
+import javax.security.sasl.SaslServer;
+import javax.security.sasl.SaslServerFactory;
+
 import org.apache.kafka.common.errors.IllegalSaslStateException;
 import org.apache.kafka.common.security.scram.ScramMessages.ClientFinalMessage;
 import org.apache.kafka.common.security.scram.ScramMessages.ClientFirstMessage;
@@ -26,20 +39,6 @@ import org.apache.kafka.common.security.scram.ScramMessages.ServerFirstMessage;
 import org.apache.kafka.common.utils.ArraysUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.CallbackHandler;
-import javax.security.auth.callback.NameCallback;
-import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.security.sasl.SaslException;
-import javax.security.sasl.SaslServer;
-import javax.security.sasl.SaslServerFactory;
-import java.io.IOException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
 
 /**
  * SaslServer implementation for SASL/SCRAM. This server is configured with a callback

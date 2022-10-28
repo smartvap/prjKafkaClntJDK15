@@ -87,7 +87,7 @@ public class ConsumerProtocol {
         checkVersionCompatibility(version);
         Struct struct = SUBSCRIPTION_V0.read(buffer);
         ByteBuffer userData = struct.getBytes(USER_DATA_KEY_NAME);
-        List<String> topics = new ArrayList();
+        List<String> topics = new ArrayList<String>();
         for (Object topicObj : struct.getArray(TOPICS_KEY_NAME))
             topics.add((String) topicObj);
         return new PartitionAssignor.Subscription(topics, userData);
@@ -99,7 +99,7 @@ public class ConsumerProtocol {
         checkVersionCompatibility(version);
         Struct struct = ASSIGNMENT_V0.read(buffer);
         ByteBuffer userData = struct.getBytes(USER_DATA_KEY_NAME);
-        List<TopicPartition> partitions = new ArrayList();
+        List<TopicPartition> partitions = new ArrayList<TopicPartition>();
         for (Object structObj : struct.getArray(TOPIC_PARTITIONS_KEY_NAME)) {
             Struct assignment = (Struct) structObj;
             String topic = assignment.getString(TOPIC_KEY_NAME);
@@ -114,7 +114,7 @@ public class ConsumerProtocol {
     public static ByteBuffer serializeAssignment(PartitionAssignor.Assignment assignment) {
         Struct struct = new Struct(ASSIGNMENT_V0);
         struct.set(USER_DATA_KEY_NAME, assignment.userData());
-        List<Struct> topicAssignments = new ArrayList();
+        List<Struct> topicAssignments = new ArrayList<Struct>();
         for (Map.Entry<String, List<Integer>> topicEntry : asMap(assignment.partitions()).entrySet()) {
             Struct topicAssignment = new Struct(TOPIC_ASSIGNMENT_V0);
             topicAssignment.set(TOPIC_KEY_NAME, topicEntry.getKey());
@@ -139,12 +139,12 @@ public class ConsumerProtocol {
 
 
     private static Map<String, List<Integer>> asMap(Collection<TopicPartition> partitions) {
-        Map<String, List<Integer>> partitionMap = new HashMap();
+        Map<String, List<Integer>> partitionMap = new HashMap<String, List<Integer>>();
         for (TopicPartition partition : partitions) {
             String topic = partition.topic();
             List<Integer> topicPartitions = partitionMap.get(topic);
             if (topicPartitions == null) {
-                topicPartitions = new ArrayList();
+                topicPartitions = new ArrayList<Integer>();
                 partitionMap.put(topic, topicPartitions);
             }
             topicPartitions.add(partition.partition());

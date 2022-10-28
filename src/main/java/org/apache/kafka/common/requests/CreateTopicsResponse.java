@@ -90,7 +90,7 @@ public class CreateTopicsResponse extends AbstractResponse {
     public CreateTopicsResponse(Map<String, Error> errors, short version) {
         super(new Struct(ProtoUtils.responseSchema(ApiKeys.CREATE_TOPICS.id, version)));
 
-        List<Struct> topicErrorsStructs = new ArrayList(errors.size());
+        List<Struct> topicErrorsStructs = new ArrayList<Struct>(errors.size());
         for (Map.Entry<String, Error> topicError : errors.entrySet()) {
             Struct topicErrorsStruct = struct.instance(TOPIC_ERRORS_KEY_NAME);
             topicErrorsStruct.set(TOPIC_KEY_NAME, topicError.getKey());
@@ -109,7 +109,7 @@ public class CreateTopicsResponse extends AbstractResponse {
         super(struct);
 
         Object[] topicErrorStructs = struct.getArray(TOPIC_ERRORS_KEY_NAME);
-        Map<String, Error> errors = new HashMap();
+        Map<String, Error> errors = new HashMap<String, Error>();
         for (Object topicErrorStructObj : topicErrorStructs) {
             Struct topicErrorCodeStruct = (Struct) topicErrorStructObj;
             String topic = topicErrorCodeStruct.getString(TOPIC_KEY_NAME);

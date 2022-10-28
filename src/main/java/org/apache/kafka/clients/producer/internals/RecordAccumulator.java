@@ -21,6 +21,7 @@ import org.apache.kafka.common.metrics.Sensor;
 import org.apache.kafka.common.metrics.stats.Rate;
 import org.apache.kafka.common.record.*;
 import org.apache.kafka.common.utils.CopyOnWriteMap;
+import org.apache.kafka.common.utils.Deque;
 import org.apache.kafka.common.utils.Time;
 import org.apache.kafka.common.utils.Utils;
 import org.slf4j.Logger;
@@ -86,11 +87,11 @@ public final class RecordAccumulator {
         this.compression = compression;
         this.lingerMs = lingerMs;
         this.retryBackoffMs = retryBackoffMs;
-        this.batches = new CopyOnWriteMap();
+        this.batches = new CopyOnWriteMap<TopicPartition, Deque<RecordBatch>>();
         String metricGrpName = "producer-metrics";
         this.free = new BufferPool(totalSize, batchSize, metrics, time, metricGrpName);
         this.incomplete = new IncompleteRecordBatches();
-        this.muted = new HashSet();
+        this.muted = new HashSet<TopicPartition>();
         this.time = time;
         registerMetrics(metrics, metricGrpName);
     }
@@ -208,7 +209,7 @@ public final class RecordAccumulator {
      * due to metadata being unavailable
      */
     public List<RecordBatch> abortExpiredBatches(int requestTimeout, long now) {
-        List<RecordBatch> expiredBatches = new ArrayList();
+        List<RecordBatch> expiredBatches = new ArrayList<RecordBatch>();
         int count = 0;
         for (Map.Entry<TopicPartition, org.apache.kafka.common.utils.Deque<RecordBatch>> entry : this.batches.entrySet()) {
             org.apache.kafka.common.utils.Deque<RecordBatch> dq = entry.getValue();
@@ -288,9 +289,9 @@ public final class RecordAccumulator {
      * </ol>
      */
     public ReadyCheckResult ready(Cluster cluster, long nowMs) {
-        Set<Node> readyNodes = new HashSet();
+        Set<Node> readyNodes = new HashSet<Node>();
         long nextReadyCheckDelayMs = Long.MAX_VALUE;
-        Set<String> unknownLeaderTopics = new HashSet();
+        Set<String> unknownLeaderTopics = new HashSet<String>();
 
         boolean exhausted = this.free.queued() > 0;
         for (Map.Entry<TopicPartition, org.apache.kafka.common.utils.Deque<RecordBatch>> entry : this.batches.entrySet()) {
@@ -360,11 +361,11 @@ public final class RecordAccumulator {
         if (nodes.isEmpty())
             return Collections.emptyMap();
 
-        Map<Integer, List<RecordBatch>> batches = new HashMap();
+        Map<Integer, List<RecordBatch>> batches = new HashMap<Integer, List<RecordBatch>>();
         for (Node node : nodes) {
             int size = 0;
             List<PartitionInfo> parts = cluster.partitionsForNode(node.id());
-            List<RecordBatch> ready = new ArrayList();
+            List<RecordBatch> ready = new ArrayList<RecordBatch>();
             /* to make starvation less likely this loop doesn't start at 0 */
             int start = drainIndex = drainIndex % parts.size();
             do {
@@ -415,7 +416,7 @@ public final class RecordAccumulator {
         org.apache.kafka.common.utils.Deque<RecordBatch> d = this.batches.get(tp);
         if (d != null)
             return d;
-        d = new org.apache.kafka.common.utils.ArrayDeque();
+        d = new org.apache.kafka.common.utils.ArrayDeque<RecordBatch>();
         org.apache.kafka.common.utils.Deque<RecordBatch> previous = this.batches.putIfAbsent(tp, d);
         if (previous == null)
             return d;
@@ -577,7 +578,7 @@ public final class RecordAccumulator {
         
         public Iterable<RecordBatch> all() {
             synchronized (incomplete) {
-                return new ArrayList(this.incomplete);
+                return new ArrayList<RecordBatch>(this.incomplete);
             }
         }
     }

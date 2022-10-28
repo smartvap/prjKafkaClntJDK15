@@ -22,7 +22,9 @@ package org.apache.kafka.common.errors;
  */
 public class PolicyViolationException extends ApiException {
 
-    public PolicyViolationException(String message) {
+    private static final long serialVersionUID = -57912640388447522L;
+
+	public PolicyViolationException(String message) {
         super(message);
     }
 

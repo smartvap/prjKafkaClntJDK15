@@ -34,7 +34,7 @@ import java.util.*;
  */
 public class PartitionStates<S> {
 
-    private final LinkedHashMap<TopicPartition, S> map = new LinkedHashMap();
+    private final LinkedHashMap<TopicPartition, S> map = new LinkedHashMap<TopicPartition, S>();
 
     public PartitionStates() {}
 
@@ -57,7 +57,7 @@ public class PartitionStates<S> {
      * Returns the partitions in random order.
      */
     public Set<TopicPartition> partitionSet() {
-        return new HashSet(map.keySet());
+        return new HashSet<TopicPartition>(map.keySet());
     }
 
     public void clear() {
@@ -72,9 +72,9 @@ public class PartitionStates<S> {
      * Returns the partition states in order.
      */
     public List<PartitionState<S>> partitionStates() {
-        List<PartitionState<S>> result = new ArrayList();
+        List<PartitionState<S>> result = new ArrayList<PartitionState<S>>();
         for (Map.Entry<TopicPartition, S> entry : map.entrySet()) {
-            result.add(new PartitionState(entry.getKey(), entry.getValue()));
+            result.add(new PartitionState<S>(entry.getKey(), entry.getValue()));
         }
         return result;
     }
@@ -83,7 +83,7 @@ public class PartitionStates<S> {
      * Returns the partition state values in order.
      */
     public List<S> partitionStateValues() {
-        return new ArrayList(map.values());
+        return new ArrayList<S>(map.values());
     }
 
     public S stateValue(TopicPartition topicPartition) {
@@ -106,11 +106,11 @@ public class PartitionStates<S> {
     }
 
     private void update(Map<TopicPartition, S> partitionToState) {
-        LinkedHashMap<String, List<TopicPartition>> topicToPartitions = new LinkedHashMap();
+        LinkedHashMap<String, List<TopicPartition>> topicToPartitions = new LinkedHashMap<String, List<TopicPartition>>();
         for (TopicPartition tp : partitionToState.keySet()) {
             List<TopicPartition> partitions = topicToPartitions.get(tp.topic());
             if (partitions == null) {
-                partitions = new ArrayList();
+                partitions = new ArrayList<TopicPartition>();
                 topicToPartitions.put(tp.topic(), partitions);
             }
             partitions.add(tp);

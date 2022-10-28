@@ -30,7 +30,7 @@ public class ConfigValue {
     private boolean visible;
 
     public ConfigValue(String name) {
-        this(name, null, new ArrayList(), new ArrayList<String>());
+        this(name, null, new ArrayList<Object>(), new ArrayList<String>());
     }
 
     public ConfigValue(String name, Object value, List<Object> recommendedValues, List<String> errorMessages) {

@@ -141,7 +141,7 @@ public class Serdes {
             throw new IllegalArgumentException("deserializer must not be null");
         }
 
-        return new WrapperSerde(serializer, deserializer);
+        return new WrapperSerde<T>(serializer, deserializer);
     }
 
     /*

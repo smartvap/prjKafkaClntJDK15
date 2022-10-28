@@ -28,7 +28,7 @@ public class ClusterResourceListeners {
     private final List<ClusterResourceListener> clusterResourceListeners;
 
     public ClusterResourceListeners() {
-        this.clusterResourceListeners = new ArrayList();
+        this.clusterResourceListeners = new ArrayList<ClusterResourceListener>();
     }
 
     /**

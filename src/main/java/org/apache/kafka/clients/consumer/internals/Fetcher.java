@@ -28,6 +28,8 @@ import org.apache.kafka.common.record.LogEntry;
 import org.apache.kafka.common.record.Record;
 import org.apache.kafka.common.record.TimestampType;
 import org.apache.kafka.common.requests.*;
+import org.apache.kafka.common.requests.FetchRequest.Builder;
+import org.apache.kafka.common.requests.FetchRequest.PartitionData;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.apache.kafka.common.utils.Time;
 import org.apache.kafka.common.utils.Utils;
@@ -91,7 +93,7 @@ public class Fetcher<K, V> implements SubscriptionState.Listener {
         this.checkCrcs = checkCrcs;
         this.keyDeserializer = keyDeserializer;
         this.valueDeserializer = valueDeserializer;
-        this.completedFetches = new ConcurrentLinkedQueue();
+        this.completedFetches = new ConcurrentLinkedQueue<CompletedFetch>();
         this.sensors = new FetchManagerMetrics(metrics, metricGrpPrefix);
         this.retryBackoffMs = retryBackoffMs;
 
@@ -159,7 +161,7 @@ public class Fetcher<K, V> implements SubscriptionState.Listener {
                                 return;
                             }
 
-                            Set<TopicPartition> partitions = new HashSet(response.responseData().keySet());
+                            Set<TopicPartition> partitions = new HashSet<TopicPartition>(response.responseData().keySet());
                             FetchResponseMetricAggregator metricAggregator = new FetchResponseMetricAggregator(sensors, partitions);
 
                             for (Map.Entry<TopicPartition, FetchResponse.PartitionData> entry : response.responseData().entrySet()) {
@@ -286,7 +288,7 @@ public class Fetcher<K, V> implements SubscriptionState.Listener {
                 }
 
                 if (!shouldRetry) {
-                    HashMap<String, List<PartitionInfo>> topicsPartitionInfos = new HashMap();
+                    HashMap<String, List<PartitionInfo>> topicsPartitionInfos = new HashMap<String, List<PartitionInfo>>();
                     for (String topic : cluster.topics())
                         topicsPartitionInfos.put(topic, cluster.availablePartitionsForTopic(topic));
                     return topicsPartitionInfos;
@@ -348,7 +350,7 @@ public class Fetcher<K, V> implements SubscriptionState.Listener {
     public Map<TopicPartition, OffsetAndTimestamp> getOffsetsByTimes(Map<TopicPartition, Long> timestampsToSearch,
                                                                      long timeout) {
         Map<TopicPartition, OffsetData> offsetData = retrieveOffsetsByTimes(timestampsToSearch, timeout, true);
-        HashMap<TopicPartition, OffsetAndTimestamp> offsetsByTimes = new HashMap(offsetData.size());
+        HashMap<TopicPartition, OffsetAndTimestamp> offsetsByTimes = new HashMap<TopicPartition, OffsetAndTimestamp>(offsetData.size());
         for (Map.Entry<TopicPartition, OffsetData> entry : offsetData.entrySet()) {
             OffsetData data = entry.getValue();
             if (data == null)
@@ -407,10 +409,10 @@ public class Fetcher<K, V> implements SubscriptionState.Listener {
     private Map<TopicPartition, Long> beginningOrEndOffset(Collection<TopicPartition> partitions,
                                                            long timestamp,
                                                            long timeout) {
-        Map<TopicPartition, Long> timestampsToSearch = new HashMap();
+        Map<TopicPartition, Long> timestampsToSearch = new HashMap<TopicPartition, Long>();
         for (TopicPartition tp : partitions)
             timestampsToSearch.put(tp, timestamp);
-        Map<TopicPartition, Long> result = new HashMap();
+        Map<TopicPartition, Long> result = new HashMap<TopicPartition, Long>();
         for (Map.Entry<TopicPartition, OffsetData> entry :
                 retrieveOffsetsByTimes(timestampsToSearch, timeout, false).entrySet()) {
             result.put(entry.getKey(), entry.getValue().offset);
@@ -428,7 +430,7 @@ public class Fetcher<K, V> implements SubscriptionState.Listener {
      *         the defaultResetPolicy is NONE
      */
     public Map<TopicPartition, List<ConsumerRecord<K, V>>> fetchedRecords() {
-        Map<TopicPartition, List<ConsumerRecord<K, V>>> drained = new HashMap();
+        Map<TopicPartition, List<ConsumerRecord<K, V>>> drained = new HashMap<TopicPartition, List<ConsumerRecord<K, V>>>();
         int recordsRemaining = maxPollRecords;
 
         while (recordsRemaining > 0) {
@@ -449,7 +451,7 @@ public class Fetcher<K, V> implements SubscriptionState.Listener {
                         // this case shouldn't usually happen because we only send one fetch at a time per partition,
                         // but it might conceivably happen in some rare cases (such as partition leader changes).
                         // we have to copy to a new list because the old one may be immutable
-                        List<ConsumerRecord<K, V>> newRecords = new ArrayList(records.size() + currentRecords.size());
+                        List<ConsumerRecord<K, V>> newRecords = new ArrayList<ConsumerRecord<K, V>>(records.size() + currentRecords.size());
                         newRecords.addAll(currentRecords);
                         newRecords.addAll(records);
                         drained.put(partition, newRecords);
@@ -511,7 +513,7 @@ public class Fetcher<K, V> implements SubscriptionState.Listener {
             final boolean requireTimestamps,
             final Map<TopicPartition, Long> timestampsToSearch) {
         // Group the partitions by node.
-        final Map<Node, Map<TopicPartition, Long>> timestampsToSearchByNode = new HashMap();
+        final Map<Node, Map<TopicPartition, Long>> timestampsToSearchByNode = new HashMap<Node, Map<TopicPartition, Long>>();
         for (Map.Entry<TopicPartition, Long> entry: timestampsToSearch.entrySet()) {
             TopicPartition tp  = entry.getKey();
             PartitionInfo info = metadata.fetch().partition(tp);
@@ -526,15 +528,15 @@ public class Fetcher<K, V> implements SubscriptionState.Listener {
                 Node node = info.leader();
                 Map<TopicPartition, Long> topicData = timestampsToSearchByNode.get(node);
                 if (topicData == null) {
-                    topicData = new HashMap();
+                    topicData = new HashMap<TopicPartition, Long>();
                     timestampsToSearchByNode.put(node, topicData);
                 }
                 topicData.put(entry.getKey(), entry.getValue());
             }
         }
 
-        final RequestFuture<Map<TopicPartition, OffsetData>> listOffsetRequestsFuture = new RequestFuture();
-        final Map<TopicPartition, OffsetData> fetchedTimestampOffsets = new HashMap();
+        final RequestFuture<Map<TopicPartition, OffsetData>> listOffsetRequestsFuture = new RequestFuture<Map<TopicPartition, OffsetData>>();
+        final Map<TopicPartition, OffsetData> fetchedTimestampOffsets = new HashMap<TopicPartition, OffsetData>();
         final AtomicInteger remainingResponses = new AtomicInteger(timestampsToSearchByNode.size());
         for (Map.Entry<Node, Map<TopicPartition, Long>> entry : timestampsToSearchByNode.entrySet()) {
             sendListOffsetRequest(entry.getKey(), entry.getValue(), requireTimestamps)
@@ -598,7 +600,7 @@ public class Fetcher<K, V> implements SubscriptionState.Listener {
     private void handleListOffsetResponse(Map<TopicPartition, Long> timestampsToSearch,
                                           ListOffsetResponse listOffsetResponse,
                                           RequestFuture<Map<TopicPartition, OffsetData>> future) {
-        Map<TopicPartition, OffsetData> timestampOffsetMap = new HashMap();
+        Map<TopicPartition, OffsetData> timestampOffsetMap = new HashMap<TopicPartition, OffsetData>();
         for (Map.Entry<TopicPartition, Long> entry : timestampsToSearch.entrySet()) {
             TopicPartition topicPartition = entry.getKey();
             ListOffsetResponse.PartitionData partitionData = listOffsetResponse.responseData().get(topicPartition);
@@ -654,7 +656,7 @@ public class Fetcher<K, V> implements SubscriptionState.Listener {
     }
 
     private List<TopicPartition> fetchablePartitions() {
-        Set<TopicPartition> exclude = new HashSet();
+        Set<TopicPartition> exclude = new HashSet<TopicPartition>();
         List<TopicPartition> fetchable = subscriptions.fetchablePartitions();
         if (nextInLineRecords != null && !nextInLineRecords.isDrained()) {
             exclude.add(nextInLineRecords.partition);
@@ -673,7 +675,7 @@ public class Fetcher<K, V> implements SubscriptionState.Listener {
     private Map<Node, FetchRequest.Builder> createFetchRequests() {
         // create the fetch info
         Cluster cluster = metadata.fetch();
-        Map<Node, LinkedHashMap<TopicPartition, FetchRequest.PartitionData>> fetchable = new LinkedHashMap();
+        Map<Node, LinkedHashMap<TopicPartition, FetchRequest.PartitionData>> fetchable = new LinkedHashMap<Node, LinkedHashMap<TopicPartition, PartitionData>>();
         for (TopicPartition partition : fetchablePartitions()) {
             Node node = cluster.leaderFor(partition);
             if (node == null) {
@@ -682,7 +684,7 @@ public class Fetcher<K, V> implements SubscriptionState.Listener {
                 // if there is a leader and no in-flight requests, issue a new fetch
                 LinkedHashMap<TopicPartition, FetchRequest.PartitionData> fetch = fetchable.get(node);
                 if (fetch == null) {
-                    fetch = new LinkedHashMap();
+                    fetch = new LinkedHashMap<TopicPartition, PartitionData>();
                     fetchable.put(node, fetch);
                 }
 
@@ -696,7 +698,7 @@ public class Fetcher<K, V> implements SubscriptionState.Listener {
         }
 
         // create the fetches
-        Map<Node, FetchRequest.Builder> requests = new HashMap();
+        Map<Node, FetchRequest.Builder> requests = new HashMap<Node, Builder>();
         for (Map.Entry<Node, LinkedHashMap<TopicPartition, FetchRequest.PartitionData>> entry : fetchable.entrySet()) {
             Node node = entry.getKey();
             FetchRequest.Builder fetch = new FetchRequest.Builder(this.maxWaitMs, this.minBytes, entry.getValue()).
@@ -733,7 +735,7 @@ public class Fetcher<K, V> implements SubscriptionState.Listener {
                     return null;
                 }
 
-                List<ConsumerRecord<K, V>> parsed = new ArrayList();
+                List<ConsumerRecord<K, V>> parsed = new ArrayList<ConsumerRecord<K, V>>();
                 boolean skippedRecords = false;
                 for (LogEntry logEntry : partition.records.deepEntries()) {
                     // Skip the messages earlier than current position.
@@ -747,7 +749,7 @@ public class Fetcher<K, V> implements SubscriptionState.Listener {
                 recordsCount = parsed.size();
 
                 log.trace("Adding fetched record for partition {} with offset {} to buffered record list", tp, position);
-                parsedRecords = new PartitionRecords(fetchOffset, tp, parsed);
+                parsedRecords = new PartitionRecords<K, V>(fetchOffset, tp, parsed);
 
                 if (parsed.isEmpty() && !skippedRecords && (partition.records.sizeInBytes() > 0)) {
                     if (completedFetch.responseVersion < 3) {
@@ -836,7 +838,7 @@ public class Fetcher<K, V> implements SubscriptionState.Listener {
             byte[] valueByteArray = valueBytes == null ? null : Utils.toArray(valueBytes);
             V value = valueBytes == null ? null : this.valueDeserializer.deserialize(partition.topic(), valueByteArray);
 
-            return new ConsumerRecord(partition.topic(), partition.partition(), offset,
+            return new ConsumerRecord<K, V>(partition.topic(), partition.partition(), offset,
                                         timestamp, timestampType, record.checksum(),
                                         keyByteArray == null ? ConsumerRecord.NULL_SIZE : keyByteArray.length,
                                         valueByteArray == null ? ConsumerRecord.NULL_SIZE : valueByteArray.length,
@@ -920,7 +922,7 @@ public class Fetcher<K, V> implements SubscriptionState.Listener {
         private final Set<TopicPartition> unrecordedPartitions;
 
         private final FetchMetrics fetchMetrics = new FetchMetrics();
-        private final Map<String, FetchMetrics> topicFetchMetrics = new HashMap();
+        private final Map<String, FetchMetrics> topicFetchMetrics = new HashMap<String, FetchMetrics>();
 
         private FetchResponseMetricAggregator(FetchManagerMetrics sensors,
                                               Set<TopicPartition> partitions) {
@@ -1056,7 +1058,7 @@ public class Fetcher<K, V> implements SubscriptionState.Listener {
             name = "topic." + topic + ".records-fetched";
             Sensor recordsFetched = this.metrics.getSensor(name);
             if (recordsFetched == null) {
-                Map<String, String> metricTags = new HashMap(1);
+                Map<String, String> metricTags = new HashMap<String, String>(1);
                 metricTags.put("topic", topic.replace('.', '_'));
 
                 recordsFetched = this.metrics.sensor(name);

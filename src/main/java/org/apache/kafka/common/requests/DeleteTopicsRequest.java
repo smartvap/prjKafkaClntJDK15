@@ -74,7 +74,7 @@ public class DeleteTopicsRequest extends AbstractRequest {
     public DeleteTopicsRequest(Struct struct, short version) {
         super(struct, version);
         Object[] topicsArray = struct.getArray(TOPICS_KEY_NAME);
-        Set<String> topics = new HashSet(topicsArray.length);
+        Set<String> topics = new HashSet<String>(topicsArray.length);
         for (Object topic : topicsArray)
             topics.add((String) topic);
 
@@ -84,7 +84,7 @@ public class DeleteTopicsRequest extends AbstractRequest {
 
     @Override
     public AbstractResponse getErrorResponse(Throwable e) {
-        Map<String, Errors> topicErrors = new HashMap();
+        Map<String, Errors> topicErrors = new HashMap<String, Errors>();
         for (String topic : topics)
             topicErrors.put(topic, Errors.forException(e));
 

@@ -47,7 +47,7 @@ public class DeleteTopicsResponse extends AbstractResponse {
     public DeleteTopicsResponse(Map<String, Errors> errors) {
         super(new Struct(CURRENT_SCHEMA));
 
-        List<Struct> topicErrorCodeStructs = new ArrayList(errors.size());
+        List<Struct> topicErrorCodeStructs = new ArrayList<Struct>(errors.size());
         for (Map.Entry<String, Errors> topicError : errors.entrySet()) {
             Struct topicErrorCodeStruct = struct.instance(TOPIC_ERROR_CODES_KEY_NAME);
             topicErrorCodeStruct.set(TOPIC_KEY_NAME, topicError.getKey());
@@ -63,7 +63,7 @@ public class DeleteTopicsResponse extends AbstractResponse {
         super(struct);
 
         Object[] topicErrorCodesStructs = struct.getArray(TOPIC_ERROR_CODES_KEY_NAME);
-        Map<String, Errors> errors = new HashMap();
+        Map<String, Errors> errors = new HashMap<String, Errors>();
         for (Object topicErrorCodeStructObj : topicErrorCodesStructs) {
             Struct topicErrorCodeStruct = (Struct) topicErrorCodeStructObj;
             String topic = topicErrorCodeStruct.getString(TOPIC_KEY_NAME);

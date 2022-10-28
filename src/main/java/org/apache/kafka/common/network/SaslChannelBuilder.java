@@ -58,7 +58,8 @@ public class SaslChannelBuilder implements ChannelBuilder {
         this.credentialCache = credentialCache;
     }
 
-    public void configure(Map<String, ?> configs) throws KafkaException {
+    @SuppressWarnings("unchecked")
+	public void configure(Map<String, ?> configs) throws KafkaException {
         try {
             this.configs = configs;
             boolean hasKerberos;
@@ -76,7 +77,6 @@ public class SaslChannelBuilder implements ChannelBuilder {
                 } catch (Exception ke) {
                     defaultRealm = "";
                 }
-                @SuppressWarnings("unchecked")
                 List<String> principalToLocalRules = (List<String>) configs.get(SaslConfigs.SASL_KERBEROS_PRINCIPAL_TO_LOCAL_RULES);
                 if (principalToLocalRules != null)
                     kerberosShortNamer = KerberosShortNamer.fromUnparsedRules(defaultRealm, principalToLocalRules);

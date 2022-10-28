@@ -110,9 +110,9 @@ public class Metrics implements Closeable {
      */
     public Metrics(MetricConfig defaultConfig, List<MetricsReporter> reporters, Time time, boolean enableExpiration) {
         this.config = defaultConfig;
-        this.sensors = new ConcurrentHashMap();
-        this.metrics = new ConcurrentHashMap();
-        this.childrenSensors = new ConcurrentHashMap();
+        this.sensors = new ConcurrentHashMap<String, Sensor>();
+        this.metrics = new ConcurrentHashMap<MetricName, KafkaMetric>();
+        this.childrenSensors = new ConcurrentHashMap<Sensor, List<Sensor>>();
         this.reporters = Utils.notNull(reporters);
         this.time = time;
         for (MetricsReporter reporter : reporters)
@@ -150,7 +150,7 @@ public class Metrics implements Closeable {
      * @param tags        additional key/value attributes of the metric
      */
     public MetricName metricName(String name, String group, String description, Map<String, String> tags) {
-        Map<String, String> combinedTag = new LinkedHashMap(config.tags());
+        Map<String, String> combinedTag = new LinkedHashMap<String, String>(config.tags());
         combinedTag.putAll(tags);
         return new MetricName(name, group, description, combinedTag);
     }
@@ -316,7 +316,7 @@ public class Metrics implements Closeable {
                 for (Sensor parent : parents) {
                     List<Sensor> children = childrenSensors.get(parent);
                     if (children == null) {
-                        children = new ArrayList();
+                        children = new ArrayList<Sensor>();
                         childrenSensors.put(parent, children);
                     }
                     children.add(s);
@@ -413,7 +413,7 @@ public class Metrics implements Closeable {
      * Add a MetricReporter
      */
     public synchronized void addReporter(MetricsReporter reporter) {
-        Utils.notNull(reporter).init(new ArrayList(metrics.values()));
+        Utils.notNull(reporter).init(new ArrayList<KafkaMetric>(metrics.values()));
         this.reporters.add(reporter);
     }
 

@@ -54,7 +54,7 @@ public class LeaderAndIsrResponse extends AbstractResponse {
 
         struct.set(ERROR_CODE_KEY_NAME, errorCode);
 
-        List<Struct> responseDatas = new ArrayList(responses.size());
+        List<Struct> responseDatas = new ArrayList<Struct>(responses.size());
         for (Map.Entry<TopicPartition, Short> response : responses.entrySet()) {
             Struct partitionData = struct.instance(PARTITIONS_KEY_NAME);
             TopicPartition partition = response.getKey();
@@ -74,7 +74,7 @@ public class LeaderAndIsrResponse extends AbstractResponse {
     public LeaderAndIsrResponse(Struct struct) {
         super(struct);
 
-        responses = new HashMap();
+        responses = new HashMap<TopicPartition, Short>();
         for (Object responseDataObj : struct.getArray(PARTITIONS_KEY_NAME)) {
             Struct responseData = (Struct) responseDataObj;
             String topic = responseData.getString(PARTITIONS_TOPIC_KEY_NAME);

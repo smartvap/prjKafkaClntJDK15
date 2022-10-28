@@ -1072,7 +1072,7 @@ public class Protocol {
 
     private static void schemaToBnfHtml(Schema schema, StringBuilder b, int indentSize) {
         final String indentStr = indentString(indentSize);
-        final Map<String, Type> subTypes = new LinkedHashMap();
+        final Map<String, Type> subTypes = new LinkedHashMap<String, Type>();
 
         // Top level fields
         for (Field field: schema.fields()) {
@@ -1129,7 +1129,7 @@ public class Protocol {
     }
 
     private static void schemaToFieldTableHtml(Schema schema, StringBuilder b) {
-        Set<Field> fields = new LinkedHashSet();
+        Set<Field> fields = new LinkedHashSet<Field>();
         populateSchemaFields(schema, fields);
 
         b.append("<table class=\"data-table\"><tbody>\n");

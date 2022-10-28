@@ -38,7 +38,7 @@ public class MetricConfig {
         this.samples = 2;
         this.eventWindow = Long.MAX_VALUE;
         this.timeWindowMs = TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS);
-        this.tags = new LinkedHashMap();
+        this.tags = new LinkedHashMap<String, String>();
         this.recordingLevel = Sensor.RecordingLevel.INFO;
     }
 

@@ -21,10 +21,13 @@ package org.apache.kafka.common.security.kerberos;
 import java.io.IOException;
 
 public class BadFormatString extends IOException {
-    BadFormatString(String msg) {
-        super(msg);
-    }
-    BadFormatString(String msg, Throwable err) {
-        super(err.getMessage());
-    }
+	private static final long serialVersionUID = 269915418928486821L;
+
+	BadFormatString(String msg) {
+		super(msg);
+	}
+
+	BadFormatString(String msg, Throwable err) {
+		super(err.getMessage());
+	}
 }

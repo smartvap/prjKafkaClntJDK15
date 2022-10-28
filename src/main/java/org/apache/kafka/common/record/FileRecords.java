@@ -401,7 +401,8 @@ public class FileRecords extends AbstractRecords implements Closeable {
      * @param initFileSize The size used for pre allocate file, for example 512 * 1025 *1024
      * @param preallocate Pre allocate file or not, gotten from configuration.
      */
-    private static FileChannel openChannel(File file,
+    @SuppressWarnings("resource")
+	private static FileChannel openChannel(File file,
                                            boolean mutable,
                                            boolean fileAlreadyExists,
                                            int initFileSize,

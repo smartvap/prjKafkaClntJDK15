@@ -56,7 +56,7 @@ public class DescribeGroupsRequest extends AbstractRequest {
 
     public DescribeGroupsRequest(Struct struct, short version) {
         super(struct, version);
-        this.groupIds = new ArrayList();
+        this.groupIds = new ArrayList<String>();
         for (Object groupId : struct.getArray(GROUP_IDS_KEY_NAME))
             this.groupIds.add((String) groupId);
     }

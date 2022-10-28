@@ -74,11 +74,11 @@ public class FetchRequest extends AbstractRequest {
 
         public TopicAndPartitionData(String topic) {
             this.topic = topic;
-            this.partitions = new LinkedHashMap();
+            this.partitions = new LinkedHashMap<Integer, T>();
         }
 
         public static <T> List<TopicAndPartitionData<T>> batchByTopic(LinkedHashMap<TopicPartition, T> data) {
-            List<TopicAndPartitionData<T>> topics = new ArrayList();
+            List<TopicAndPartitionData<T>> topics = new ArrayList<TopicAndPartitionData<T>>();
             for (Map.Entry<TopicPartition, T> topicEntry : data.entrySet()) {
                 String topic = topicEntry.getKey().topic();
                 int partition = topicEntry.getKey().partition();
@@ -159,11 +159,11 @@ public class FetchRequest extends AbstractRequest {
         struct.set(MIN_BYTES_KEY_NAME, minBytes);
         if (version >= 3)
             struct.set(MAX_BYTES_KEY_NAME, maxBytes);
-        List<Struct> topicArray = new ArrayList();
+        List<Struct> topicArray = new ArrayList<Struct>();
         for (TopicAndPartitionData<PartitionData> topicEntry : topicsData) {
             Struct topicData = struct.instance(TOPICS_KEY_NAME);
             topicData.set(TOPIC_KEY_NAME, topicEntry.topic);
-            List<Struct> partitionArray = new ArrayList();
+            List<Struct> partitionArray = new ArrayList<Struct>();
             for (Map.Entry<Integer, PartitionData> partitionEntry : topicEntry.partitions.entrySet()) {
                 PartitionData fetchPartitionData = partitionEntry.getValue();
                 Struct partitionData = topicData.instance(PARTITIONS_KEY_NAME);
@@ -192,7 +192,7 @@ public class FetchRequest extends AbstractRequest {
             maxBytes = struct.getInt(MAX_BYTES_KEY_NAME);
         else
             maxBytes = DEFAULT_RESPONSE_MAX_BYTES;
-        fetchData = new LinkedHashMap();
+        fetchData = new LinkedHashMap<TopicPartition, PartitionData>();
         for (Object topicResponseObj : struct.getArray(TOPICS_KEY_NAME)) {
             Struct topicResponse = (Struct) topicResponseObj;
             String topic = topicResponse.getString(TOPIC_KEY_NAME);
@@ -209,7 +209,7 @@ public class FetchRequest extends AbstractRequest {
 
     @Override
     public AbstractResponse getErrorResponse(Throwable e) {
-        LinkedHashMap<TopicPartition, FetchResponse.PartitionData> responseData = new LinkedHashMap();
+        LinkedHashMap<TopicPartition, FetchResponse.PartitionData> responseData = new LinkedHashMap<TopicPartition, FetchResponse.PartitionData>();
 
         for (Map.Entry<TopicPartition, PartitionData> entry: fetchData.entrySet()) {
             FetchResponse.PartitionData partitionResponse = new FetchResponse.PartitionData(Errors.forException(e).code(),

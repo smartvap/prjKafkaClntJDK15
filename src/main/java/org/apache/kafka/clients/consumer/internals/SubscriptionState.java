@@ -74,13 +74,13 @@ public class SubscriptionState {
     private ConsumerRebalanceListener listener;
 
     /* Listeners provide a hook for internal state cleanup (e.g. metrics) on assignment changes */
-    private List<Listener> listeners = new ArrayList();
+    private List<Listener> listeners = new ArrayList<Listener>();
 
     public SubscriptionState(OffsetResetStrategy defaultResetStrategy) {
         this.defaultResetStrategy = defaultResetStrategy;
         this.subscription = Collections.emptySet();
-        this.assignment = new PartitionStates();
-        this.groupSubscription = new HashSet();
+        this.assignment = new PartitionStates<TopicPartitionState>();
+        this.groupSubscription = new HashSet<String>();
         this.needsFetchCommittedOffsets = true; // initialize to true for the consumers to fetch offset upon starting up
         this.subscribedPattern = null;
         this.subscriptionType = SubscriptionType.NONE;
@@ -154,7 +154,7 @@ public class SubscriptionState {
         if (!this.assignment.partitionSet().equals(partitions)) {
             fireOnAssignment(partitions);
 
-            Map<TopicPartition, TopicPartitionState> partitionToState = new HashMap();
+            Map<TopicPartition, TopicPartitionState> partitionToState = new HashMap<TopicPartition, TopicPartitionState>();
             for (TopicPartition partition : partitions) {
                 TopicPartitionState state = assignment.stateValue(partition);
                 if (state == null)
@@ -228,7 +228,7 @@ public class SubscriptionState {
     }
 
     public Set<TopicPartition> pausedPartitions() {
-        HashSet<TopicPartition> paused = new HashSet();
+        HashSet<TopicPartition> paused = new HashSet<TopicPartition>();
         for (PartitionStates.PartitionState<TopicPartitionState> state : assignment.partitionStates()) {
             if (state.value().paused) {
                 paused.add(state.topicPartition());
@@ -287,7 +287,7 @@ public class SubscriptionState {
     }
 
     public List<TopicPartition> fetchablePartitions() {
-        List<TopicPartition> fetchable = new ArrayList(assignment.size());
+        List<TopicPartition> fetchable = new ArrayList<TopicPartition>(assignment.size());
         for (PartitionStates.PartitionState<TopicPartitionState> state : assignment.partitionStates()) {
             if (state.value().isFetchable())
                 fetchable.add(state.topicPartition());
@@ -317,7 +317,7 @@ public class SubscriptionState {
     }
 
     public Map<TopicPartition, OffsetAndMetadata> allConsumed() {
-        Map<TopicPartition, OffsetAndMetadata> allConsumed = new HashMap();
+        Map<TopicPartition, OffsetAndMetadata> allConsumed = new HashMap<TopicPartition, OffsetAndMetadata>();
         for (PartitionStates.PartitionState<TopicPartitionState> state : assignment.partitionStates()) {
             if (state.value().hasValidPosition())
                 allConsumed.put(state.topicPartition(), new OffsetAndMetadata(state.value().position));
@@ -357,7 +357,7 @@ public class SubscriptionState {
     }
 
     public Set<TopicPartition> missingFetchPositions() {
-        Set<TopicPartition> missing = new HashSet();
+        Set<TopicPartition> missing = new HashSet<TopicPartition>();
         for (PartitionStates.PartitionState<TopicPartitionState> state : assignment.partitionStates()) {
             if (!state.value().hasValidPosition())
                 missing.add(state.topicPartition());
@@ -407,7 +407,7 @@ public class SubscriptionState {
     }
 
     private static Map<TopicPartition, TopicPartitionState> partitionToStateMap(Collection<TopicPartition> assignments) {
-        Map<TopicPartition, TopicPartitionState> map = new HashMap(assignments.size());
+        Map<TopicPartition, TopicPartitionState> map = new HashMap<TopicPartition, TopicPartitionState>(assignments.size());
         for (TopicPartition tp : assignments)
             map.put(tp, new TopicPartitionState());
         return map;

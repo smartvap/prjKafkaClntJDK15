@@ -28,7 +28,9 @@ public class LRUCache<K, V> implements Cache<K, V> {
 
     public LRUCache(final int maxSize) {
         cache = new LinkedHashMap<K, V>(16, .75f, true) {
-            @Override
+            private static final long serialVersionUID = 5511579128787600585L;
+
+			@Override
             protected boolean removeEldestEntry(Map.Entry<K, V> eldest) {
                 return size() > maxSize;
             }

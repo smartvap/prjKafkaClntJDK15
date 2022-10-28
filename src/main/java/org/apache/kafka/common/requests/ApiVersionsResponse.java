@@ -64,7 +64,7 @@ public class ApiVersionsResponse extends AbstractResponse {
     public ApiVersionsResponse(short errorCode, List<ApiVersion> apiVersions) {
         super(new Struct(CURRENT_SCHEMA));
         struct.set(ERROR_CODE_KEY_NAME, errorCode);
-        List<Struct> apiVersionList = new ArrayList();
+        List<Struct> apiVersionList = new ArrayList<Struct>();
         for (ApiVersion apiVersion : apiVersions) {
             Struct apiVersionStruct = struct.instance(API_VERSIONS_KEY_NAME);
             apiVersionStruct.set(API_KEY_NAME, apiVersion.apiKey);
@@ -80,7 +80,7 @@ public class ApiVersionsResponse extends AbstractResponse {
     public ApiVersionsResponse(Struct struct) {
         super(struct);
         this.errorCode = struct.getShort(ERROR_CODE_KEY_NAME);
-        List<ApiVersion> tempApiVersions = new ArrayList();
+        List<ApiVersion> tempApiVersions = new ArrayList<ApiVersion>();
         for (Object apiVersionsObj : struct.getArray(API_VERSIONS_KEY_NAME)) {
             Struct apiVersionStruct = (Struct) apiVersionsObj;
             short apiKey = apiVersionStruct.getShort(API_KEY_NAME);
@@ -112,7 +112,7 @@ public class ApiVersionsResponse extends AbstractResponse {
     }
 
     private static ApiVersionsResponse createApiVersionsResponse() {
-        List<ApiVersion> versionList = new ArrayList();
+        List<ApiVersion> versionList = new ArrayList<ApiVersion>();
         for (ApiKeys apiKey : ApiKeys.values()) {
             versionList.add(new ApiVersion(apiKey.id, ProtoUtils.oldestVersion(apiKey.id), ProtoUtils.latestVersion(apiKey.id)));
         }
@@ -120,7 +120,7 @@ public class ApiVersionsResponse extends AbstractResponse {
     }
 
     private Map<Short, ApiVersion> buildApiKeyToApiVersion(List<ApiVersion> apiVersions) {
-        Map<Short, ApiVersion> tempApiIdToApiVersion = new HashMap();
+        Map<Short, ApiVersion> tempApiIdToApiVersion = new HashMap<Short, ApiVersion>();
         for (ApiVersion apiVersion: apiVersions) {
             tempApiIdToApiVersion.put(apiVersion.apiKey, apiVersion);
         }

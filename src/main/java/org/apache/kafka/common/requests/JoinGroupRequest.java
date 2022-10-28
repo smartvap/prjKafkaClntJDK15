@@ -121,7 +121,7 @@ public class JoinGroupRequest extends AbstractRequest {
         }
         struct.set(MEMBER_ID_KEY_NAME, memberId);
         struct.set(PROTOCOL_TYPE_KEY_NAME, protocolType);
-        List<Struct> groupProtocolsList = new ArrayList(groupProtocols.size());
+        List<Struct> groupProtocolsList = new ArrayList<Struct>(groupProtocols.size());
         for (ProtocolMetadata protocol : groupProtocols) {
             Struct protocolStruct = struct.instance(GROUP_PROTOCOLS_KEY_NAME);
             protocolStruct.set(PROTOCOL_NAME_KEY_NAME, protocol.name);
@@ -153,7 +153,7 @@ public class JoinGroupRequest extends AbstractRequest {
         memberId = struct.getString(MEMBER_ID_KEY_NAME);
         protocolType = struct.getString(PROTOCOL_TYPE_KEY_NAME);
 
-        groupProtocols = new ArrayList();
+        groupProtocols = new ArrayList<ProtocolMetadata>();
         for (Object groupProtocolObj : struct.getArray(GROUP_PROTOCOLS_KEY_NAME)) {
             Struct groupProtocolStruct = (Struct) groupProtocolObj;
             String name = groupProtocolStruct.getString(PROTOCOL_NAME_KEY_NAME);

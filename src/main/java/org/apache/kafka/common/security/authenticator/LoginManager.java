@@ -36,10 +36,10 @@ import java.util.Map;
 public class LoginManager {
 
     // static configs (broker or client)
-    private static final EnumMap<LoginType, LoginManager> LOGIN_TYPE_INSTANCES = new EnumMap(LoginType.class);
+    private static final EnumMap<LoginType, LoginManager> LOGIN_TYPE_INSTANCES = new EnumMap<LoginType, LoginManager>(LoginType.class);
 
     // dynamic configs (client-only)
-    private static final Map<Password, LoginManager> JAAS_CONF_INSTANCES = new HashMap();
+    private static final Map<Password, LoginManager> JAAS_CONF_INSTANCES = new HashMap<Password, LoginManager>();
 
     private final Login login;
     private final Object cacheKey;
@@ -128,9 +128,9 @@ public class LoginManager {
     /* Should only be used in tests. */
     public static void closeAll() {
         synchronized (LoginManager.class) {
-            for (Object key : new ArrayList(LOGIN_TYPE_INSTANCES.keySet()))
+            for (Object key : new ArrayList<LoginType>(LOGIN_TYPE_INSTANCES.keySet()))
                 LOGIN_TYPE_INSTANCES.remove(key).login.close();
-            for (Object key : new ArrayList(JAAS_CONF_INSTANCES.keySet()))
+            for (Object key : new ArrayList<Password>(JAAS_CONF_INSTANCES.keySet()))
                 JAAS_CONF_INSTANCES.remove(key).login.close();
         }
     }

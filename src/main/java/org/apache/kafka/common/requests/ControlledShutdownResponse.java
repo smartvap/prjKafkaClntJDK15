@@ -50,7 +50,7 @@ public class ControlledShutdownResponse extends AbstractResponse {
 
         struct.set(ERROR_CODE_KEY_NAME, errorCode);
 
-        List<Struct> partitionsRemainingList = new ArrayList(partitionsRemaining.size());
+        List<Struct> partitionsRemainingList = new ArrayList<Struct>(partitionsRemaining.size());
         for (TopicPartition topicPartition : partitionsRemaining) {
             Struct topicPartitionStruct = struct.instance(PARTITIONS_REMAINING_KEY_NAME);
             topicPartitionStruct.set(TOPIC_KEY_NAME, topicPartition.topic());
@@ -66,7 +66,7 @@ public class ControlledShutdownResponse extends AbstractResponse {
     public ControlledShutdownResponse(Struct struct) {
         super(struct);
         errorCode = struct.getShort(ERROR_CODE_KEY_NAME);
-        Set<TopicPartition> partitions = new HashSet();
+        Set<TopicPartition> partitions = new HashSet<TopicPartition>();
         for (Object topicPartitionObj : struct.getArray(PARTITIONS_REMAINING_KEY_NAME)) {
             Struct topicPartition = (Struct) topicPartitionObj;
             String topic = topicPartition.getString(TOPIC_KEY_NAME);

@@ -43,7 +43,7 @@ public class ConsumerNetworkClient implements Closeable {
     // the mutable state of this class is protected by the object's monitor (excluding the wakeup
     // flag and the request completion queue below).
     private final KafkaClient client;
-    private final Map<Node, List<ClientRequest>> unsent = new HashMap();
+    private final Map<Node, List<ClientRequest>> unsent = new HashMap<Node, List<ClientRequest>>();
     private final Metadata metadata;
     private final Time time;
     private final long retryBackoffMs;
@@ -52,7 +52,7 @@ public class ConsumerNetworkClient implements Closeable {
 
     // when requests complete, they are transferred to this queue prior to invocation. The purpose
     // is to avoid invoking them while holding this object's monitor which can open the door for deadlocks.
-    private final ConcurrentLinkedQueue<RequestFutureCompletionHandler> pendingCompletion = new ConcurrentLinkedQueue();
+    private final ConcurrentLinkedQueue<RequestFutureCompletionHandler> pendingCompletion = new ConcurrentLinkedQueue<RequestFutureCompletionHandler>();
 
     // this flag allows the client to be safely woken up without waiting on the lock above. It is
     // atomic to avoid the need to acquire the lock above in order to enable it concurrently.
@@ -98,7 +98,7 @@ public class ConsumerNetworkClient implements Closeable {
         synchronized (this) {
             List<ClientRequest> nodeUnsent = unsent.get(node);
             if (nodeUnsent == null) {
-                nodeUnsent = new ArrayList();
+                nodeUnsent = new ArrayList<ClientRequest>();
                 unsent.put(node, nodeUnsent);
             }
             nodeUnsent.add(request);
@@ -465,7 +465,7 @@ public class ConsumerNetworkClient implements Closeable {
         private RuntimeException e;
 
         public RequestFutureCompletionHandler() {
-            this.future = new RequestFuture();
+            this.future = new RequestFuture<ClientResponse>();
         }
 
         public void fireCompletion() {

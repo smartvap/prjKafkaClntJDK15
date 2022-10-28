@@ -58,7 +58,7 @@ public class DescribeGroupsResponse extends AbstractResponse {
     public DescribeGroupsResponse(Map<String, GroupMetadata> groups) {
         super(new Struct(CURRENT_SCHEMA));
 
-        List<Struct> groupStructs = new ArrayList();
+        List<Struct> groupStructs = new ArrayList<Struct>();
         for (Map.Entry<String, GroupMetadata> groupEntry : groups.entrySet()) {
             Struct groupStruct = struct.instance(GROUPS_KEY_NAME);
             GroupMetadata group = groupEntry.getValue();
@@ -67,7 +67,7 @@ public class DescribeGroupsResponse extends AbstractResponse {
             groupStruct.set(GROUP_STATE_KEY_NAME, group.state);
             groupStruct.set(PROTOCOL_TYPE_KEY_NAME, group.protocolType);
             groupStruct.set(PROTOCOL_KEY_NAME, group.protocol);
-            List<Struct> membersList = new ArrayList();
+            List<Struct> membersList = new ArrayList<Struct>();
             for (GroupMember member : group.members) {
                 Struct memberStruct = groupStruct.instance(MEMBERS_KEY_NAME);
                 memberStruct.set(MEMBER_ID_KEY_NAME, member.memberId);
@@ -86,7 +86,7 @@ public class DescribeGroupsResponse extends AbstractResponse {
 
     public DescribeGroupsResponse(Struct struct) {
         super(struct);
-        this.groups = new HashMap();
+        this.groups = new HashMap<String, GroupMetadata>();
         for (Object groupObj : struct.getArray(GROUPS_KEY_NAME)) {
             Struct groupStruct = (Struct) groupObj;
 
@@ -96,7 +96,7 @@ public class DescribeGroupsResponse extends AbstractResponse {
             String protocolType = groupStruct.getString(PROTOCOL_TYPE_KEY_NAME);
             String protocol = groupStruct.getString(PROTOCOL_KEY_NAME);
 
-            List<GroupMember> members = new ArrayList();
+            List<GroupMember> members = new ArrayList<GroupMember>();
             for (Object memberObj : groupStruct.getArray(MEMBERS_KEY_NAME)) {
                 Struct memberStruct = (Struct) memberObj;
                 String memberId = memberStruct.getString(MEMBER_ID_KEY_NAME);
@@ -211,7 +211,7 @@ public class DescribeGroupsResponse extends AbstractResponse {
 
     public static DescribeGroupsResponse fromError(Errors error, List<String> groupIds) {
         GroupMetadata errorMetadata = GroupMetadata.forError(error);
-        Map<String, GroupMetadata> groups = new HashMap();
+        Map<String, GroupMetadata> groups = new HashMap<String, GroupMetadata>();
         for (String groupId : groupIds)
             groups.put(groupId, errorMetadata);
         return new DescribeGroupsResponse(groups);

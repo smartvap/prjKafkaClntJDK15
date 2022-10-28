@@ -38,7 +38,8 @@ public class RecordsIterator extends AbstractIterator<LogEntry> {
     private final ShallowRecordsIterator<?> shallowIter;
     private DeepRecordsIterator innerIter;
 
-    public RecordsIterator(LogInputStream<?> logInputStream,
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+	public RecordsIterator(LogInputStream<?> logInputStream,
                            boolean shallow,
                            boolean ensureMatchingMagic,
                            int maxRecordSize) {
@@ -55,7 +56,7 @@ public class RecordsIterator extends AbstractIterator<LogEntry> {
      * @return The shallow iterator.
      */
     public static <T extends LogEntry> Iterator<T> shallowIterator(LogInputStream<T> logInputStream) {
-        return new ShallowRecordsIterator(logInputStream);
+        return new ShallowRecordsIterator<T>(logInputStream);
     }
 
     @Override
@@ -148,11 +149,11 @@ public class RecordsIterator extends AbstractIterator<LogEntry> {
             CompressionType compressionType = wrapperRecord.compressionType();
             ByteBuffer buffer = wrapperRecord.value();
             DataInputStream stream = MemoryRecordsBuilder.wrapForInput(new ByteBufferInputStream(buffer), compressionType, wrapperRecord.magic());
-            LogInputStream logStream = new DataLogInputStream(stream, maxMessageSize);
+            LogInputStream<?> logStream = new DataLogInputStream(stream, maxMessageSize);
 
             long wrapperRecordOffset = wrapperEntry.offset();
             long wrapperRecordTimestamp = wrapperRecord.timestamp();
-            this.logEntries = new ArrayDeque();
+            this.logEntries = new ArrayDeque<LogEntry>();
 
             // If relative offset is used, we need to decompress the entire message first to compute
             // the absolute offset. For simplicity and because it's a format that is on its way out, we

@@ -98,8 +98,8 @@ public final class Sensor {
         this.registry = registry;
         this.name = Utils.notNull(name);
         this.parents = parents == null ? new Sensor[0] : parents;
-        this.metrics = new ArrayList();
-        this.stats = new ArrayList();
+        this.metrics = new ArrayList<KafkaMetric>();
+        this.stats = new ArrayList<Stat>();
         this.config = config;
         this.time = time;
         this.inactiveSensorExpirationTimeMs = TimeUnit.MILLISECONDS.convert(inactiveSensorExpirationTimeSeconds, TimeUnit.SECONDS);

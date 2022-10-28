@@ -32,6 +32,7 @@ import org.apache.kafka.common.metrics.stats.Rate;
 import org.apache.kafka.common.protocol.Errors;
 import org.apache.kafka.common.requests.JoinGroupRequest.ProtocolMetadata;
 import org.apache.kafka.common.requests.OffsetCommitRequest;
+import org.apache.kafka.common.requests.OffsetCommitRequest.PartitionData;
 import org.apache.kafka.common.requests.OffsetCommitResponse;
 import org.apache.kafka.common.requests.OffsetFetchRequest;
 import org.apache.kafka.common.requests.OffsetFetchResponse;
@@ -107,7 +108,7 @@ public final class ConsumerCoordinator extends AbstractCoordinator {
         this.autoCommitEnabled = autoCommitEnabled;
         this.autoCommitIntervalMs = autoCommitIntervalMs;
         this.assignors = assignors;
-        this.completedOffsetCommits = new ConcurrentLinkedQueue();
+        this.completedOffsetCommits = new ConcurrentLinkedQueue<OffsetCommitCompletion>();
         this.sensors = new ConsumerCoordinatorMetrics(metrics, metricGrpPrefix);
         this.interceptors = interceptors;
         this.excludeInternalTopics = excludeInternalTopics;
@@ -128,7 +129,7 @@ public final class ConsumerCoordinator extends AbstractCoordinator {
     @Override
     public List<ProtocolMetadata> metadata() {
         this.joinedSubscription = subscriptions.subscription();
-        List<ProtocolMetadata> metadataList = new ArrayList();
+        List<ProtocolMetadata> metadataList = new ArrayList<ProtocolMetadata>();
         for (PartitionAssignor assignor : assignors) {
             Subscription subscription = assignor.subscription(joinedSubscription);
             ByteBuffer metadata = ConsumerProtocol.serializeSubscription(subscription);
@@ -138,7 +139,7 @@ public final class ConsumerCoordinator extends AbstractCoordinator {
     }
 
     public void updatePatternSubscription(Cluster cluster) {
-        final Set<String> topicsToSubscribe = new HashSet();
+        final Set<String> topicsToSubscribe = new HashSet<String>();
 
         for (String topic : cluster.topics())
             if (subscriptions.subscribedPattern().matcher(topic).matches() &&
@@ -157,7 +158,7 @@ public final class ConsumerCoordinator extends AbstractCoordinator {
             public void onMetadataUpdate(Cluster cluster) {
                 // if we encounter any unauthorized topics, raise an exception to the user
                 if (!cluster.unauthorizedTopics().isEmpty())
-                    throw new TopicAuthorizationException(new HashSet(cluster.unauthorizedTopics()));
+                    throw new TopicAuthorizationException(new HashSet<String>(cluster.unauthorizedTopics()));
 
                 if (subscriptions.hasPatternSubscription())
                     updatePatternSubscription(cluster);
@@ -206,15 +207,15 @@ public final class ConsumerCoordinator extends AbstractCoordinator {
         // into the subscriptions as long as they still match the subscribed pattern
         //
         // TODO this part of the logic should be removed once we allow regex on leader assign
-        Set<String> addedTopics = new HashSet();
+        Set<String> addedTopics = new HashSet<String>();
         for (TopicPartition tp : subscriptions.assignedPartitions()) {
             if (!joinedSubscription.contains(tp.topic()))
                 addedTopics.add(tp.topic());
         }
 
         if (!addedTopics.isEmpty()) {
-            Set<String> newSubscription = new HashSet(subscriptions.subscription());
-            Set<String> newJoinedSubscription = new HashSet(joinedSubscription);
+            Set<String> newSubscription = new HashSet<String>(subscriptions.subscription());
+            Set<String> newJoinedSubscription = new HashSet<String>(joinedSubscription);
             newSubscription.addAll(addedTopics);
             newJoinedSubscription.addAll(addedTopics);
 
@@ -237,7 +238,7 @@ public final class ConsumerCoordinator extends AbstractCoordinator {
         ConsumerRebalanceListener listener = subscriptions.listener();
         log.info("Setting newly assigned partitions {} for group {}", subscriptions.assignedPartitions(), groupId);
         try {
-            Set<TopicPartition> assigned = new HashSet(subscriptions.assignedPartitions());
+            Set<TopicPartition> assigned = new HashSet<TopicPartition>(subscriptions.assignedPartitions());
             listener.onPartitionsAssigned(assigned);
         } catch (WakeupException e) {
             throw e;
@@ -302,8 +303,8 @@ public final class ConsumerCoordinator extends AbstractCoordinator {
         if (assignor == null)
             throw new IllegalStateException("Coordinator selected invalid assignment protocol: " + assignmentStrategy);
 
-        Set<String> allSubscribedTopics = new HashSet();
-        Map<String, Subscription> subscriptions = new HashMap();
+        Set<String> allSubscribedTopics = new HashSet<String>();
+        Map<String, Subscription> subscriptions = new HashMap<String, Subscription>();
         for (Map.Entry<String, ByteBuffer> subscriptionEntry : allSubscriptions.entrySet()) {
             Subscription subscription = ConsumerProtocol.deserializeSubscription(subscriptionEntry.getValue());
             subscriptions.put(subscriptionEntry.getKey(), subscription);
@@ -333,21 +334,21 @@ public final class ConsumerCoordinator extends AbstractCoordinator {
         //
         // TODO: this is a hack and not something we want to support long-term unless we push regex into the protocol
         //       we may need to modify the PartitionAssingor API to better support this case.
-        Set<String> assignedTopics = new HashSet();
+        Set<String> assignedTopics = new HashSet<String>();
         for (Assignment assigned : assignment.values()) {
             for (TopicPartition tp : assigned.partitions())
                 assignedTopics.add(tp.topic());
         }
 
         if (!assignedTopics.containsAll(allSubscribedTopics)) {
-            Set<String> notAssignedTopics = new HashSet(allSubscribedTopics);
+            Set<String> notAssignedTopics = new HashSet<String>(allSubscribedTopics);
             notAssignedTopics.removeAll(assignedTopics);
             log.warn("The following subscribed topics are not assigned to any members in the group {} : {} ", groupId,
                     notAssignedTopics);
         }
 
         if (!allSubscribedTopics.containsAll(assignedTopics)) {
-            Set<String> newlyAddedTopics = new HashSet(assignedTopics);
+            Set<String> newlyAddedTopics = new HashSet<String>(assignedTopics);
             newlyAddedTopics.removeAll(allSubscribedTopics);
             log.info("The following not-subscribed topics are assigned to group {}, and their metadata will be " +
                     "fetched from the brokers : {}", groupId, newlyAddedTopics);
@@ -362,7 +363,7 @@ public final class ConsumerCoordinator extends AbstractCoordinator {
 
         log.debug("Finished assignment for group {}: {}", groupId, assignment);
 
-        Map<String, ByteBuffer> groupAssignment = new HashMap();
+        Map<String, ByteBuffer> groupAssignment = new HashMap<String, ByteBuffer>();
         for (Map.Entry<String, Assignment> assignmentEntry : assignment.entrySet()) {
             ByteBuffer buffer = ConsumerProtocol.serializeAssignment(assignmentEntry.getValue());
             groupAssignment.put(assignmentEntry.getKey(), buffer);
@@ -380,7 +381,7 @@ public final class ConsumerCoordinator extends AbstractCoordinator {
         ConsumerRebalanceListener listener = subscriptions.listener();
         log.info("Revoking previously assigned partitions {} for group {}", subscriptions.assignedPartitions(), groupId);
         try {
-            Set<TopicPartition> revoked = new HashSet(subscriptions.assignedPartitions());
+            Set<TopicPartition> revoked = new HashSet<TopicPartition>(subscriptions.assignedPartitions());
             listener.onPartitionsRevoked(revoked);
         } catch (WakeupException e) {
             throw e;
@@ -668,7 +669,7 @@ public final class ConsumerCoordinator extends AbstractCoordinator {
             return RequestFuture.coordinatorNotAvailable();
 
         // create the offset commit request
-        Map<TopicPartition, OffsetCommitRequest.PartitionData> offsetData = new HashMap(offsets.size());
+        Map<TopicPartition, OffsetCommitRequest.PartitionData> offsetData = new HashMap<TopicPartition, PartitionData>(offsets.size());
         for (Map.Entry<TopicPartition, OffsetAndMetadata> entry : offsets.entrySet()) {
             OffsetAndMetadata offsetAndMetadata = entry.getValue();
             if (offsetAndMetadata.offset() < 0) {
@@ -713,7 +714,7 @@ public final class ConsumerCoordinator extends AbstractCoordinator {
         @Override
         public void handle(OffsetCommitResponse commitResponse, RequestFuture<Void> future) {
             sensors.commitLatency.record(response.requestLatencyMs());
-            Set<String> unauthorizedTopics = new HashSet();
+            Set<String> unauthorizedTopics = new HashSet<String>();
 
             for (Map.Entry<TopicPartition, Short> entry : commitResponse.responseData().entrySet()) {
                 TopicPartition tp = entry.getKey();
@@ -797,7 +798,7 @@ public final class ConsumerCoordinator extends AbstractCoordinator {
         log.debug("Group {} fetching committed offsets for partitions: {}", groupId, partitions);
         // construct the request
         OffsetFetchRequest.Builder requestBuilder =
-                new OffsetFetchRequest.Builder(this.groupId, new ArrayList(partitions));
+                new OffsetFetchRequest.Builder(this.groupId, new ArrayList<TopicPartition>(partitions));
 
         // send the request with a callback
         return client.send(coordinator, requestBuilder)
@@ -826,7 +827,7 @@ public final class ConsumerCoordinator extends AbstractCoordinator {
                 return;
             }
 
-            Map<TopicPartition, OffsetAndMetadata> offsets = new HashMap(response.responseData().size());
+            Map<TopicPartition, OffsetAndMetadata> offsets = new HashMap<TopicPartition, OffsetAndMetadata>(response.responseData().size());
             for (Map.Entry<TopicPartition, OffsetFetchResponse.PartitionData> entry : response.responseData().entrySet()) {
                 TopicPartition tp = entry.getKey();
                 OffsetFetchResponse.PartitionData data = entry.getValue();
@@ -888,7 +889,7 @@ public final class ConsumerCoordinator extends AbstractCoordinator {
         private final Map<String, Integer> partitionsPerTopic;
 
         private MetadataSnapshot(SubscriptionState subscription, Cluster cluster) {
-            Map<String, Integer> partitionsPerTopic = new HashMap();
+            Map<String, Integer> partitionsPerTopic = new HashMap<String, Integer>();
             for (String topic : subscription.groupSubscription())
                 partitionsPerTopic.put(topic, cluster.partitionCountForTopic(topic));
             this.partitionsPerTopic = partitionsPerTopic;

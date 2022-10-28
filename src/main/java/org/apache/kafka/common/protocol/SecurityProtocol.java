@@ -36,8 +36,8 @@ public enum SecurityProtocol {
 
     static {
         SecurityProtocol[] protocols = SecurityProtocol.values();
-        List<String> names = new ArrayList(protocols.length);
-        Map<Short, SecurityProtocol> codeToSecurityProtocol = new HashMap(protocols.length);
+        List<String> names = new ArrayList<String>(protocols.length);
+        Map<Short, SecurityProtocol> codeToSecurityProtocol = new HashMap<Short, SecurityProtocol>(protocols.length);
         Set<SecurityProtocol> nonTestingValues = EnumSet.noneOf(SecurityProtocol.class);
         for (SecurityProtocol proto : protocols) {
             codeToSecurityProtocol.put(proto.id, proto);

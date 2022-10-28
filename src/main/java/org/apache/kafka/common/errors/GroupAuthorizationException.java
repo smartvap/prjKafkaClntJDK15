@@ -13,7 +13,8 @@
 package org.apache.kafka.common.errors;
 
 public class GroupAuthorizationException extends AuthorizationException {
-    private final String groupId;
+    private static final long serialVersionUID = -2193423080321329526L;
+	private final String groupId;
 
     public GroupAuthorizationException(String groupId) {
         super("Not authorized to access group: " + groupId);

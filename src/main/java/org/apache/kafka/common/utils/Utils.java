@@ -12,15 +12,31 @@
  */
 package org.apache.kafka.common.utils;
 
-import java.io.*;
+import java.io.Closeable;
+import java.io.EOFException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,7 +61,7 @@ public class Utils {
      * @return An unmodifiable sorted list with the contents of the collection
      */
     public static <T extends Comparable<? super T>> List<T> sorted(Collection<T> collection) {
-        List<T> res = new ArrayList(collection);
+        List<T> res = new ArrayList<T>(collection);
         Collections.sort(res);
         return Collections.unmodifiableList(res);
     }
@@ -475,7 +491,7 @@ public class Utils {
      * are Strings.
      */
     public static Map<String, String> propsToStringMap(Properties props) {
-        Map<String, String> result = new HashMap();
+        Map<String, String> result = new HashMap<String, String>();
         for (Map.Entry<Object, Object> entry : props.entrySet())
             result.put(entry.getKey().toString(), entry.getValue().toString());
         return result;
@@ -592,7 +608,7 @@ public class Utils {
      */
 //    @SafeVarargs
     public static <T> Set<T> mkSet(T... elems) {
-        return new HashSet(Arrays.asList(elems));
+        return new HashSet<T>(Arrays.asList(elems));
     }
 
     /*

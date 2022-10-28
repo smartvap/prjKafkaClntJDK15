@@ -50,7 +50,7 @@ public class KerberosShortNamer {
     }
 
     private static List<KerberosRule> parseRules(String defaultRealm, List<String> rules) {
-        List<KerberosRule> result = new ArrayList();
+        List<KerberosRule> result = new ArrayList<KerberosRule>();
         for (String rule : rules) {
             Matcher matcher = RULE_PARSER.matcher(rule);
             if (!matcher.lookingAt()) {

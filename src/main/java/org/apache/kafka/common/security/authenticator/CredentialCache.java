@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class CredentialCache {
 
-    private final Map<String, Cache<? extends Object>> cacheMap = new HashMap();
+    private final Map<String, Cache<? extends Object>> cacheMap = new HashMap<String, Cache<? extends Object>>();
 
     public <C> Cache<C> createCache(String mechanism, Class<C> credentialClass) {
         Cache<C> cache = new Cache<C>(credentialClass);
@@ -49,7 +49,7 @@ public class CredentialCache {
 
         public Cache(Class<C> credentialClass) {
             this.credentialClass = credentialClass;
-            this.credentials = new ConcurrentHashMap();
+            this.credentials = new ConcurrentHashMap<String, C>();
         }
 
         public C get(String username) {

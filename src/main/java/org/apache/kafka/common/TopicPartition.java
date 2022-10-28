@@ -23,7 +23,8 @@ import java.io.Serializable;
  */
 public final class TopicPartition implements Serializable {
 
-    private int hash = 0;
+    private static final long serialVersionUID = -613627415771699627L;
+	private int hash = 0;
     private final int partition;
     private final String topic;
 

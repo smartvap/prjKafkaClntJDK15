@@ -50,28 +50,28 @@ public class MemoryRecordsBuilder {
     // dynamically load the snappy and lz4 classes to avoid runtime dependency if we are not using compression
     // caching constructors to avoid invoking of Class.forName method for each batch
     private static MemoizingConstructorSupplier snappyOutputStreamSupplier = new MemoizingConstructorSupplier(new ConstructorSupplier() {
-        public Constructor get() throws ClassNotFoundException, NoSuchMethodException {
+        public Constructor<?> get() throws ClassNotFoundException, NoSuchMethodException {
             return Class.forName("org.xerial.snappy.SnappyOutputStream")
                 .getConstructor(OutputStream.class, Integer.TYPE);
         }
     });
 
     private static MemoizingConstructorSupplier lz4OutputStreamSupplier = new MemoizingConstructorSupplier(new ConstructorSupplier() {
-        public Constructor get() throws ClassNotFoundException, NoSuchMethodException {
+        public Constructor<?> get() throws ClassNotFoundException, NoSuchMethodException {
             return Class.forName("org.apache.kafka.common.record.KafkaLZ4BlockOutputStream")
                 .getConstructor(OutputStream.class, Boolean.TYPE);
         }
     });
 
     private static MemoizingConstructorSupplier snappyInputStreamSupplier = new MemoizingConstructorSupplier(new ConstructorSupplier() {
-        public Constructor get() throws ClassNotFoundException, NoSuchMethodException {
+        public Constructor<?> get() throws ClassNotFoundException, NoSuchMethodException {
             return Class.forName("org.xerial.snappy.SnappyInputStream")
                 .getConstructor(InputStream.class);
         }
     });
 
     private static MemoizingConstructorSupplier lz4InputStreamSupplier = new MemoizingConstructorSupplier(new ConstructorSupplier() {
-        public Constructor get() throws ClassNotFoundException, NoSuchMethodException {
+        public Constructor<?> get() throws ClassNotFoundException, NoSuchMethodException {
             return Class.forName("org.apache.kafka.common.record.KafkaLZ4BlockInputStream")
                 .getConstructor(InputStream.class, Boolean.TYPE);
         }
@@ -449,20 +449,20 @@ public class MemoryRecordsBuilder {
     }
 
     private interface ConstructorSupplier {
-        Constructor get() throws ClassNotFoundException, NoSuchMethodException;
+        Constructor<?> get() throws ClassNotFoundException, NoSuchMethodException;
     }
 
     // this code is based on Guava's @see{com.google.common.base.Suppliers.MemoizingSupplier}
     private static class MemoizingConstructorSupplier {
         final ConstructorSupplier delegate;
         transient volatile boolean initialized;
-        transient Constructor value;
+        transient Constructor<?> value;
 
         public MemoizingConstructorSupplier(ConstructorSupplier delegate) {
             this.delegate = delegate;
         }
 
-        public Constructor get() throws NoSuchMethodException, ClassNotFoundException {
+        public Constructor<?> get() throws NoSuchMethodException, ClassNotFoundException {
             if (!initialized) {
                 synchronized (this) {
                     if (!initialized) {
