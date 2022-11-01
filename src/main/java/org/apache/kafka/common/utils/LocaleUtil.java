@@ -9,7 +9,7 @@ import java.text.MessageFormat;
 import java.util.Collections;
 import java.util.PropertyPermission;
 import java.util.Set;
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused"})
 public class LocaleUtil implements Cloneable, Serializable {
     static private final LocaleUtil.Cache LOCALECACHE = new LocaleUtil.Cache();
 
@@ -171,7 +171,7 @@ public class LocaleUtil implements Cloneable, Serializable {
      * See the <code>LocaleUtil</code> class description for the details.
      * @exception NullPointerException thrown if any argument is null.
      */
-    public LocaleUtil(String language, String country, String variant) {
+	public LocaleUtil(String language, String country, String variant) {
         if (language== null || country == null || variant == null) {
             throw new NullPointerException();
         }
@@ -385,7 +385,7 @@ public class LocaleUtil implements Cloneable, Serializable {
         return getDefault();
     }
 
-    private static LocaleUtil initDefault() {
+	private static LocaleUtil initDefault() {
         String language, region, script, country, variant;
         language = AccessController.doPrivileged(
                 new GetPropertyAction("user.language", "en"));
