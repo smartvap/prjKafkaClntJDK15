@@ -5,20 +5,20 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.apache.kafka</groupId>
-    <artifactId>kafka-clients-jdk15</artifactId>
+    <artifactId>bi_kafka-clients-jdk15</artifactId>
     <version>0.10.2.0-prism</version>
     <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
+            <artifactId>bi_slf4j-api</artifactId>
             <version>1.5.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
+            <artifactId>bi_slf4j-log4j12</artifactId>
             <version>1.5.0</version>
             <scope>compile</scope>
         </dependency>
@@ -35,8 +35,8 @@
         </dependency>
         <dependency>
 			<groupId>com.alibaba</groupId>
-			<artifactId>fastjson</artifactId>
-			<version>1.2.79</version>
+			<artifactId>bi-fastjson</artifactId>
+			<version>1.2.83</version>
 		</dependency>
     </dependencies>
 	<properties>
